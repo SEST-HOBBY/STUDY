@@ -14,7 +14,8 @@ Agreed design scope: design only, one ISP per site, two links between the two co
 | `FLOOR_PLAN_FINAL.pkt` | 02_student_work/packet_tracer | My Packet Tracer file (PT 8.2.1), latest version | 33 devices, 32 links, two-floor floor-plan background embedded. This is the file behind the screenshot |
 | `FINAL_FLOOR_PLAN.png` | 02_student_work/screenshots | My screenshot of the physical view in `FLOOR_PLAN_FINAL.pkt` | Used as Figure 1 in the report |
 | `Roly_Lobley_ICTNWK529_546_AT2_Proposal_Report.docx` | 03_report | Earlier draft produced with AI assistance on 7 Oct 2026 | Superseded. Third-person wording, two INSERT placeholders. Kept for comparison; markdown copy in `04_extracted_views/Proposal_Report_draft_2026-10-07.md` |
-| `Roly_Lobley_ICTNWK529_546_AT2_Network_Infrastructure_Proposal.docx` | 03_report | Rebuilt report, first person | Current version to submit after filling in the student number and due date on the cover |
+| `Roly_Lobley_ICTNWK529_546_AT2_Network_Infrastructure_Proposal.docx` / `.pdf` | 03_report | Rebuilt report, first person, 35 pages | Current version to submit after filling in the student number and due date on the cover. The PDF is a preview render of the same file |
+| `source/` | 03_report | Section text (markdown), figures with the scripts that drew them, and the Word build scripts | Edit a section in `source/sections/`, then run `source/build/build.sh` from a working copy to regenerate the Word file and its contents page |
 
 ### Derived views (`04_extracted_views/`)
 * `packet_tracer_xml/*.xml`: both `.pkt` files decrypted to Packet Tracer XML so the device and link lists can be read without opening Packet Tracer.
@@ -24,7 +25,6 @@ Agreed design scope: design only, one ISP per site, two links between the two co
 ### Tools and analysis (`05_analysis/`)
 * `tools/pktdecrypt.py`: decrypts a `.pkt`/`.pka` (PT 7.x and 8.x) to XML. Needs the `twofish` Python package (the C extension; on Python 3.12+ patch its `import imp` line as the tool's comments describe) and is run as `python3 -I pktdecrypt.py in.pkt out.xml`. Scheme as published by the pka2xml project: reversed XOR stage, Twofish-EAX with a 16-byte key of 0x89 and IV of 0x10, XOR stage, zlib.
 * `checks/`: the arithmetic, reference-link and consistency checks that were run before the rebuild, plus the consolidated corrections used by the rebuilt report.
-* `figures/`: the logical topology diagram, rack diagram and the full-size render of the physical layout, with the scripts that drew them.
 
 ## What is NOT in this collection yet (needed to verify the report against its sources)
 1. `ICTNWK529_546_AT2_PE_TQM_v2.docx`, the Portfolio of Evidence with the HelpYou case study and task instructions (cited as [P1]).
