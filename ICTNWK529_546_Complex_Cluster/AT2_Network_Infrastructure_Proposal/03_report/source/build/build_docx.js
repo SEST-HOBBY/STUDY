@@ -191,7 +191,8 @@ for (let k = 0; k < flat.length; k++) {
   b.land = true;
   // pull the lead-in paragraph (and a heading right before it) onto the landscape page
   let j = k - 1;
-  if (flat[j] && flat[j].t === 'p') { flat[j].land = true; j--; if (flat[j] && flat[j].t === 'h') { flat[j].land = true; } }
+  const ownPage = b.t === 'img' && /fig2_/.test(b.src);   // Figure 2 gets the whole landscape page
+  if (!ownPage && flat[j] && flat[j].t === 'p') { flat[j].land = true; j--; if (flat[j] && flat[j].t === 'h') { flat[j].land = true; } }
   // caption after it
   if (flat[k + 1] && flat[k + 1].t === 'cap') flat[k + 1].land = true;
   // for the gap table, the closing paragraph too
@@ -225,7 +226,7 @@ function renderBlocks(blocks, land) {
     else if (b.t === 'p') out.push(para(b));
     else if (b.t === 'cap') out.push(caption(b));
     else if (b.t === 'img') {
-      let maxH = land ? 13.6 : 22.5;
+      let maxH = land ? (/fig2_/.test(b.src) ? 15.0 : 13.6) : 22.5;
       if (/fig3_/.test(b.src)) maxH = 11.5;      // section 4 heading + intro share the page
       if (/fig1_/.test(b.src)) maxH = 15.5;
       out.push(image(b, tw, maxH));

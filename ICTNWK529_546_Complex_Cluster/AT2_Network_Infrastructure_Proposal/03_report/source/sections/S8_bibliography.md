@@ -1,6 +1,6 @@
 # 8. Bibliography
 
-Web pages were accessed on 7 October 2026, and the prices in section 6 are the retail listings shown on that date. Section 8.1 lists the pages each product and service price came from; section 8.2 lists the assessment documents, data sheets, documentation and standards I relied on for the design.
+Web pages were accessed on 7 October 2026, and the prices in section 6 are the retail listings shown on that date. Section 8.1 lists the pages each product and service price came from. Section 8.2 lists the client documents, data sheets, documentation and standards the design draws on.
 
 ## 8.1 Product and price sources
 
@@ -57,11 +57,9 @@ Web pages were accessed on 7 October 2026, and the prices in section 6 are the r
 
 ## 8.2 References
 
-[P1] TAFE Queensland. ICTNWK529_546_AT2_PE_TQM_v2: Portfolio of Evidence. HelpYou case study and task instructions. Supplied assessment document.
+[P1] HelpYou Mortgage. Client brief: current IT infrastructure, business requirements, budget and timeframe.
 
-[P2] TAFE Queensland. ICTNWK529_546_AT2_Student Handout 2_TQB_v1: HelpYou Mortgage Customer Interview Answers. Supplied assessment document.
-
-[P3] TAFE Queensland. ICTNWK529_546_AT2_MC_TQM_v2: Assessment Marking Criteria; and ICTNWK529_546_AT2_Template_SH_TQM_v2. Supplied assessment documents.
+[P2] HelpYou Mortgage. Customer interview answers: departments and floor locations, five-year staffing forecast and server bandwidth.
 
 [R1] Cisco. Catalyst 1300 and 1300X Series Switches: data sheet.
 [https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.html](https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.html)
@@ -101,3 +99,6 @@ Web pages were accessed on 7 October 2026, and the prices in section 6 are the r
 
 [R29] Zabbix. On-premise open-source deployment and licence-fee information.
 [https://www.zabbix.com/](https://www.zabbix.com/)
+
+[R31] Datacenter360. Fortinet FortiGate 70G: specifications reproduced from the Fortinet data sheet.
+[https://datacenter360.ca/fortinet/fortigate/fortigate-70g-firewall/](https://datacenter360.ca/fortinet/fortigate/fortigate-70g-firewall/)

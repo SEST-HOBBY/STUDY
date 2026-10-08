@@ -67,3 +67,30 @@ if __name__ == '__main__':
     xml, tag_ok, expected = decrypt(raw)
     print(f'decrypted: {len(xml)} bytes (header said {expected}); EAX tag verified: {tag_ok}')
     open(sys.argv[2], 'wb').write(xml)
+
+
+def encrypt(xml_bytes):
+    """Inverse of decrypt(): zlib (4-byte BE length) -> XOR (len - i) -> Twofish-EAX -> reversed XOR."""
+    comp = len(xml_bytes).to_bytes(4, 'big') + zlib.compress(xml_bytes)
+    n = len(comp)
+    stage = bytes((b ^ ((n - i) & 0xFF)) for i, b in enumerate(comp))
+    enc = EAX(KEY).encrypt(IV, stage)
+    m = len(enc)
+    out = bytearray(m)
+    for i in range(m):
+        out[m - 1 - i] = enc[i] ^ ((m - i * m) & 0xFF)
+    return bytes(out)
+
+
+def _eax_encrypt(self, nonce, pt, header=b''):
+    N = self.omac(0, nonce); H = self.omac(1, header)
+    ctr = int.from_bytes(N, 'big'); C = bytearray()
+    for i in range(0, len(pt), 16):
+        ks = self.tf.encrypt(((ctr + i // 16) & ((1 << 128) - 1)).to_bytes(16, 'big'))
+        C += _xor(pt[i:i+16], ks)
+    C = bytes(C)
+    tag = _xor(_xor(N, self.omac(2, C)), H)
+    return C + tag
+
+
+EAX.encrypt = _eax_encrypt
