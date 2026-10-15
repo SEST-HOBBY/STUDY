@@ -13,7 +13,9 @@ Source priority: (1) current teacher directions and marking requirements, (2) th
 Nothing has been verified yet. Old VMware files dated 2025-10-22 have been found (`DC2.Eric.Roly` and
 `Windows Server 2019`); they may hold most of the 2025 lab. First job is read-only recovery and inventory, not
 configuration. See `05_analysis/Lab8_Initial_Report_2026-10-15.md` for the full report: recovered assets,
-network verification plan, AD reuse decision tree, 12-WP completion matrix, minimum path, missing files.
+network verification plan, AD reuse decision tree, 12-WP completion matrix, minimum path, missing files, and the
+single next action (Section G). The report was drafted with AI assistance and reviewed in two passes; product-knowledge
+inferences are labelled as such and every fact about our machines is marked unverified until live output confirms it.
 
 ## File register
 
@@ -25,6 +27,7 @@ network verification plan, AD reuse decision tree, 12-WP completion matrix, mini
 | (wanted) `Fix_how to fix the SID when clone a Windows VM from a template.txt` | 01_supplied_reference | Teacher handout | Sysprep procedure for fresh clones only |
 | (wanted) `SB / ISP / MG / SB-S1 / MG-S1 complete CONFIG.txt` | 01_supplied_reference/cisco_configs | Student's Lab 1 to 3 configs | Early addressing (192.168.10.x). Reference only; never paste onto live devices |
 | (wanted) `*.vmx`, `vmware.log`, directory listing | 02_student_work/vm_inventory | From the old VMware folder | Text only. The `.vmdk` disks stay on the host |
+| (wanted) `show running-config` and show output per Cisco device, redacted | 02_student_work/network | Live devices, read-only | Text only; passwords and keys replaced with `<redacted>` |
 | `screenshots/` | 02_student_work | My evidence screenshots | Suggested names `Lab8-01A-DC1-Promoted.png` ... `Lab8-10-Ubuntu-Realm.png` |
 
 Conventions: never edit files in `00_`/`01_`; derived views go in `04_`; tools and checks in `05_analysis`.
