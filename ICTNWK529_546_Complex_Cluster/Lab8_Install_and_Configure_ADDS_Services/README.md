@@ -28,6 +28,7 @@ inferences are labelled as such and every fact about our machines is marked unve
 | (wanted) `Fix_how to fix the SID when clone a Windows VM from a template.txt` | 01_supplied_reference | Teacher handout | Sysprep procedure for fresh clones only |
 | (wanted) `SB / ISP / MG / SB-S1 / MG-S1 complete CONFIG.txt` | 01_supplied_reference/cisco_configs | Student's Lab 1 to 3 configs | Early addressing (192.168.10.x). Reference only; never paste onto live devices |
 | `vm_inventory/SERVER_VM_FOR_LAB_8-9/` (`*.vmx`, `*.vmsd`, `*.vmxf`, `vmware.log`, `vmware-1.log`) | 02_student_work | Copied from the old VMware folder on 2026-10-21 | Text only, as received. The `.vmdk`, `.nvram` and `autoinst.flp` stay with the originals. Read in the report, Section A.11 |
+| `network/rack_photo_2026-10-21.jpg` | 02_student_work | My photo of the lab rack | 2911, two 1941s, 3750G, 2960 Plus, two 2960s; relabelled BNE/ISP/CNS; no cables connected. Read in the report, B.0 |
 | (wanted) `show running-config` and show output per Cisco device, redacted | 02_student_work/network | Live devices, read-only | Text only; passwords and keys replaced with `<redacted>` |
 | `screenshots/` | 02_student_work | My evidence screenshots | Suggested names `Lab8-01A-DC1-Promoted.png` ... `Lab8-10-Ubuntu-Realm.png` |
 
@@ -48,6 +49,7 @@ Conventions: never edit files in `00_`/`01_`; derived views go in `04_`; tools a
 | 9 | Brief: host on SB-S1 Gi0/1 | Early config: Gi0/1 is a trunk | Verify with `show mac address-table`; do not assume |
 | 10 | Video domain `Maggie.Zhong` | Brief: `student1firstname.student2firstname` | Our domain, read from Windows |
 | 11 | Video DC2 temporarily 192.168.2.3 | Lab already routed SB to MG | Stay on 172.16.0.2 if DNS and routing work |
+| 12 | Brief: SB / ISP / MG / SB-S1 / MG-S1 | Rack now labelled BNE / ISP / CNS, BNE S1 / CNS S1 and is uncabled (photo 2026-10-21) | Site names per the brief; device roles from each running-config; re-cabling recorded |
 
 ## Tutorial addressing (for reference)
 

@@ -33,9 +33,11 @@ Updated 2026-10-21 from the recovered `.vmx`, `.vmsd`, `.vmxf`, `.nvram`, `autoi
 | Local logon account | Easy Install created local administrator `471562641` (the student number) with an EMPTY password and auto-logon, on the `Windows Server 2019` VM for certain and very probably on DC2 (same wizard, previous day) | autoinst.flp | Yes (WS2019), Probable (DC2) |
 | SB-DNS-2, SB-FS2, SB-DNS-1/SB-FS1, CS-PC-1, Ubuntu | No VM in the folder matches any of these | Screenshot | Yes |
 | Domain and DSRM passwords | Unknown whether the student has them | | No |
-| Cisco SB, ISP, MG, SB-S1, MG-S1 | Early Lab 1 to 3 configs in hand (192.168.10.x). Later re-addressing to 192.168.1.x / 192.168.2.0/28 believed current | Config files; project memory | No |
-| Routing SB to MG, VPN/OSPF, ACLs or zone firewall | Unknown today | | No |
-| Which switch port the VM host uses; VLAN 90 membership | Unknown (brief says Gi0/1; early config makes Gi0/1 a trunk). Note the recovered VMs were never bridged (NAT, then VMnet1) | | No |
+| Rack hardware | Cisco 2911 (BNE / R1), 1941 (ISP), 1941 (CNS / R2), each with an HWIC-2T; Catalyst 3750G PoE-24 (unlabelled), 2960 Plus (MG-S1 in marker), 2960 (BNE S1), 2960 (CNS S1). Old SB / MG-S1 / Mount Gravatt labels peeled off and lying on the rack floor | Photo 2026-10-21 (B.0) | Yes (from photo) |
+| Rack cabling | **None.** No serial or Ethernet cables connected; routers powered, switches dark | Photo 2026-10-21 | Yes (from photo) |
+| Cisco configurations now on the devices | Unknown: could be the SB/ISP/MG Lab 1 to 3 configs, the later 192.168.1.x / 192.168.2.0/28 work, a Brisbane/Cairns (BNE/CNS) build, or defaults | Config files; project memory; labels | No |
+| Routing SB to MG, VPN/OSPF, ACLs or zone firewall | Not testable until re-cabled | | No |
+| Which switch port the VM host uses; VLAN 90 membership | No host is cabled to any switch today (brief says Gi0/1; early config makes Gi0/1 a trunk). The recovered VMs were never bridged (NAT, then VMnet1) | Photo; .vmx | Yes (none today) |
 | Time since the VMs last ran | 364 days (last power-off 22/10/2025 20:55) | vmware.log | Yes |
 
 Sections A to F below are the detailed plan for each row. Section G is the one thing to do next.
@@ -368,6 +370,53 @@ Nothing here is confirmed until the commands have been run on the live devices a
 `debug`, `erase`); never paste the five early CONFIG.txt files onto a live device (they would merge Lab 1 to 3
 addresses over the current ones while leaving later OSPF, VPN and DHCP lines in place); no VM powered on for this
 section until Section A's copy exists.
+
+### B.0 The rack as photographed (2026-10-21)
+
+Photo: `02_student_work/network/rack_photo_2026-10-21.jpg`. Read from the photo, so models are from the
+front-panel text and labels, and only what is visible counts.
+
+| Position | Device (as read) | Labels | Slots and ports | Cables |
+|---|---|---|---|---|
+| 1 (top) | Cisco 2911 ISR (`PWR-2911-AC`, "UQ Equipment July 2017", asset 1047921) | rail tape **BNE**; marker **R1** | EHWIC 3, 2, 1 blank; EHWIC 0 = HWIC-2T (two smart-serial ports: S0/0/0, S0/0/1); GE0/0, GE0/1, GE0/2; console RJ45 and USB; AUX | No network cables. Power on (EN LED lit) |
+| 2 | Cisco 1941 | rail tape **ISP** | EHWIC 1 blank; EHWIC 0 = HWIC-2T (S0/0/0, S0/0/1), "DTE" in marker beside it; GE0/0, GE0/1 | Power cord only |
+| 3 | Cisco 1941 | rail tape **CNS** (with initials); marker **3** and **R2** | EHWIC 0 = HWIC-2T; GE0/0, GE0/1 | Power cord only |
+| 4 | empty shelf | | | |
+| 5 | Catalyst 3750G PoE-24 (asset 8310 / 01-0045-211-AS01-3 / old management sticker 172.16.145.12) | none for the lab | 24 x GE, 4 x SFP | None; no LEDs lit |
+| 6 | Catalyst 2960 Plus (TAFE Queensland Brisbane equipment tag, "5") | marker **MG-S1** | 24 x FE, 2 x SFP, 2 x GE | None |
+| 7 | Catalyst 2960 | tape **BNE S1** | 24 x FE, 2 x GE uplinks | None |
+| 8 (bottom) | Catalyst 2960 | tape **CNS S1** | 24 x FE, 2 x GE uplinks | None |
+| rack floor | three peeled-off sticky notes | **SB**, **MG-S1**, **Mount Gravatt** | | |
+
+What this means:
+
+1. **The rack is not cabled.** No serial cables between the HWIC-2T cards, no Ethernet between routers and
+   switches, nothing into any switch port. The routers have power; the switches show no lit LEDs. The "existing
+   working lab network" in the brief does not exist in cabled form today. Section B's live checks will show
+   whatever configuration survives on each device, but routing, VLAN trunking and the host port cannot be
+   tested until the topology is re-cabled, and that re-cabling is a physical change to propose and record.
+2. **The equipment has been relabelled.** The sticky notes on the rack floor (SB, MG-S1, Mount Gravatt) are the
+   Lab 1 to 3 labels; the rails now say BNE, ISP, CNS, BNE S1, CNS S1, which match a Brisbane/Cairns scenario
+   (the HelpYou Mortgage case from AT2) rather than South Bank/Mt Gravatt. Only the 2960 Plus still carries
+   its MG-S1 marker. So the devices may now hold Brisbane/Cairns configurations, the original SB/ISP/MG ones,
+   factory defaults, or another class's work: the prompt and `show running-config` decide (B.1 sanity check).
+   Register item 12 added.
+3. **Which router is which for Lab 8.** The 2911 (three GigabitEthernet ports, HWIC-2T) is the natural SB
+   router (router-on-a-stick sub-interfaces for VLANs 20, 30, 90 on G0/0 plus S0/0/0 to ISP), the ISP 1941 has
+   the two serial ports the ISP role needs (S0/0/0 to SB, S0/0/1 to MG), and the CNS/R2 1941 is the natural MG
+   router (S0/0/1 to ISP, G0/1 to MG-S1). That matches the early configs' interface names, but it is an
+   assignment to confirm from each device's running-config, not a fact.
+4. **Switches.** BNE S1 (or the 2960 Plus marked MG-S1) can play SB-S1 and the other 2960 MG-S1; the 3750 is
+   spare. Which physical switch held the SB-S1 configuration (VLANs 20/30/90, Gi0/1 trunk, Fa0/9-10 access
+   VLAN 90) is unknown until `show running-config` is read on each.
+5. **Consistency with the VM findings.** DC2 was on NAT and then VMnet1, never bridged; with the rack uncabled,
+   the 2025 Lab 8 work almost certainly happened inside one PC's VMware networks and never touched these
+   devices. For 2026, connecting DC1 at SB and DC2 at MG through this rack means: cable it, confirm the
+   configs, then bridge each VM host to the right switch port (B.3, B.4).
+
+Read-only lab step to add alongside Section G (no cables need moving to do this): console into each of the six
+devices in turn and capture `show version` and `show running-config` (B.2). The prompt alone (`SB#`, `BNE#`,
+`Router>` ...) answers item 2 above.
 
 ### B.1 Known versus believed
 
@@ -956,6 +1005,7 @@ Work Packages 1 to 12 starts before this.
 | 9 | Brief: host on SB-S1 Gi0/1 | Early config: Gi0/1 is a trunk | Verify with the MAC table (B.3); do not assume |
 | 10 | Video domain `Maggie.Zhong` | Brief: `student1firstname.student2firstname` | Our domain, read from Windows |
 | 11 | Video DC2 temporarily 192.168.2.3 | Lab already routed SB to MG | Stay on 172.16.0.2 if DNS and routing work |
+| 12 | Brief and early configs: sites SB (South Bank) and MG (Mt Gravatt), devices SB / ISP / MG / SB-S1 / MG-S1 | Rack labels (2026-10-21): BNE / ISP / CNS, BNE S1 / CNS S1; old SB and MG labels peeled off; rack uncabled | Lab 8 site and subnet names follow the brief (SB, MG). Physical device roles are assigned after reading each running-config; re-cabling is a recorded physical change |
 
 ## Appendix 2. Work packages to official labs
 
