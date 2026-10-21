@@ -23,6 +23,8 @@ inferences are labelled as such and every fact about our machines is marked unve
 | File | Folder | Provenance | Notes |
 |---|---|---|---|
 | `Lab8_Initial_Report_2026-10-15.md` | 05_analysis | My analysis, drafted with AI assistance and reviewed | Initial report A to F plus the read-only procedures. Working document; updated as facts arrive |
+| `Cisco_reset_and_rebuild_2026-10-21.md` | 05_analysis | My procedure, drafted with AI assistance | Decision to start the Cisco devices blank: capture, erase, verify, password recovery, the two design choices, device roles |
+| `network/before_erase/` | 02_student_work | Console logs captured before erasing each device | Passwords redacted |
 | (wanted) `Week 7 Assess Lab 8 Install and Configure ADDS Services.docx` | 00_assessment_documents | TAFE | The written Lab 8 brief. Not yet in the repo |
 | (wanted) `ICTNWK529_ICTNWK546_AT1 WORKING ON.docx` | 02_student_work | Student's working portfolio (template with teacher demo screenshots) | Not yet in the repo. Keep the filename until the teacher confirms the label |
 | (wanted) `Fix_how to fix the SID when clone a Windows VM from a template.txt` | 01_supplied_reference | Teacher handout | Sysprep procedure for fresh clones only |

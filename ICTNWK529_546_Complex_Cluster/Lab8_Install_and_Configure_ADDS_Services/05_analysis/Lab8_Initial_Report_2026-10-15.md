@@ -965,23 +965,42 @@ Done 2026-10-21: the folder listing, both `.vmx` files, the logs and the floppy 
 
 **Now: find the third VM. Search every drive you own for other VMware files. This changes nothing.**
 
-On the computer that holds the old folder (and on the old `E:` drive if it is a different disk), open a command
-prompt and run, once per drive letter:
+Why: on 22/10/2025 the VMware log shows three VMs running on the lab PC when DC2 started, and two for the rest
+of the evening. One of the three was DC2 itself, one was the blank `Windows Server 2019` VM (off after 13
+minutes). The third ran beside DC2 for over an hour and its files are not in the `SERVER VM FOR LAB 8-9`
+folder. If DC1 exists anywhere, that is it. A VM is a folder holding a `.vmx` file (small text) and a `.vmdk`
+disk (gigabytes), so the search is for `.vmx` files.
 
-```
-dir /s /b E:\*.vmx E:\*.vmdk E:\*.vmsd > "%USERPROFILE%\Desktop\vmx_search_E.txt"
-dir /s /b C:\*.vmx C:\*.vmdk > "%USERPROFILE%\Desktop\vmx_search_C.txt"
-```
+Walkthrough (Windows; nothing here opens or changes a VM):
 
-(repeat for D:, F: and any USB drive; `dir /s /b` lists full paths without touching the files). Also look in
-`%USERPROFILE%\Documents\Virtual Machines` and in VMware's library (open Workstation: the left-hand Library list
-shows every VM it knows, with a path on hover; do not power anything on). If a TAFE lab PC TQ-7SXZNJ3 is still
-reachable, the third VM may be on its local disk or in another student's folder; ask the teacher and the second
-student (Eric) whether DC1 lives on their drive.
+1. Plug in every external or USB drive you used for TAFE in 2025 (the old `E:` drive especially).
+2. Open File Explorer, click **This PC**, click in the search box at the top right, type `*.vmx` and press
+   Enter. Wait for the green progress bar to finish: it searches every drive attached. Screenshot the result
+   list, or right-click a result > **Open file location** to see its folder.
+3. Repeat the search with `*.vmdk`. Any folder with a `.vmdk` but no `.vmx` is a disk whose config was lost;
+   note it too.
+4. Open **VMware Workstation** (or Player). The **Library** pane on the left lists every VM it knows (if the
+   pane is hidden: View > Customize > Library, or press F9). Screenshot it. For each entry, right-click >
+   **Open VM directory** shows where its files are. Do not click Power On.
+5. Look in `C:\Users\<your name>\Documents\Virtual Machines\` and in any `Virtual Machines` folder on the
+   other drives.
+6. Ask Eric whether his drive holds a VM folder (any `.vmx`, especially one named like `DC1...`). If it does,
+   the same lightweight files are wanted from it: a folder listing, the `.vmx`, `.vmsd` and `vmware*.log`.
+7. Ask the teacher whether lab PC TQ-7SXZNJ3 (the one used on 22/10/2025) still has its 2025 local disk; TAFE
+   lab PCs are usually re-imaged, so expect no, but it costs one question.
 
-Send back the search output and a screenshot of the Workstation Library. Then, whatever is found, the next
-step is the backup copy (A.4) of every VM folder, followed by the first isolated boot of DC2 (A.5). Nothing in
-Work Packages 1 to 12 starts before this.
+Send back: the `*.vmx` search result (screenshot or the paths typed out), the Library screenshot, and Eric's
+answer. If nothing turns up anywhere, DC1 is gone, and the first isolated boot of DC2 (A.5) decides the path:
+DC2 holds a domain -> C.3 (DC2 survives, a new DC1 is promoted into the existing domain); DC2 was never
+promoted -> both DCs are built fresh (WP1, WP2 from the start).
+
+Whatever is found, the step after the search is the backup copy (A.4) of every VM folder, then the first
+isolated boot of DC2 (A.5). Nothing in Work Packages 1 to 12 starts before this.
+
+**In parallel, at the rack (decision 2026-10-21: start blank):** follow
+`05_analysis/Cisco_reset_and_rebuild_2026-10-21.md`: capture each device's running-config to a log, erase,
+reload, verify blank, fill in its Part 5 table. The build configuration follows once the two choices in its
+Part 4 (OSPF or static; one host with two NICs or two hosts) are made.
 
 ---
 
