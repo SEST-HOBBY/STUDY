@@ -121,8 +121,8 @@ Blank check (one line each): router `show running-config | include hostname|user
 prints only `hostname Router`; switch `show running-config | include hostname|^vlan |^interface Vlan` prints only
 `hostname Switch` and `interface Vlan1`, and `show vlan brief` shows VLAN 1 plus 1002 to 1005 only.
 
-Then on each router `show inventory` (confirms `HWIC-2T` in slot 0, so Serial0/0/0 and 0/0/1) and on each
-switch `show inventory` (model: a `-24TT-L` or `-24TC-L` has Gi0/1 and Gi0/2; a `-24-S` has no gigabit ports,
+Then on each router `show inventory` (confirms `HWIC-2T` in slot 0) and `show ip interface brief` (lists
+Serial0/0/0 and Serial0/0/1), and on each switch `show inventory` (model: a `-24TT-L` or `-24TC-L` has Gi0/1 and Gi0/2; a `-24-S` has no gigabit ports,
 in which case replace Gi0/1 with Fa0/23 and Gi0/2 with Fa0/24 everywhere in Part B.3 and re-plug cables 3 and
 5 accordingly).
 
@@ -134,34 +134,39 @@ right-click once in the window to paste. Watch the screen: a line that answers `
 `% Incomplete command` is a line to fix by hand. Paste the **common block** (section 3 of the build doc) first
 on each device, then the device's own block, then `write memory`.
 
-**SB (2911).** After pasting: `show ip interface brief`. Expect `GigabitEthernet0/0` and `.20`, `.30`, `.90`
-all `up / up` with 192.168.1.1, 192.168.1.65, 192.168.2.1 (the sub-interfaces come up only when the trunk to
-SB-S1 is cabled and the switch port is up; if they show `down`, continue and re-check after SB-S1 is done).
-`Serial0/0/0` shows 209.165.200.1 and `down / down` until ISP is configured: normal.
+**SB (2911).** After pasting: `show ip interface brief`. Expect `GigabitEthernet0/0` `up / up` showing
+`unassigned` (it has no address of its own) and `.20`, `.30`, `.90` `up / up` with 192.168.1.1, 192.168.1.65,
+192.168.2.1 (they come up only when SB-S1 is powered and cable 3 is in; if `down`, continue and re-check after
+SB-S1 is done). `Serial0/0/0` shows 209.165.200.1 and `down / down` until ISP is configured: normal. The OSPF
+neighbour and ping checks for SB come later, after ISP and MG exist.
 
-**ISP (1941).** After pasting: `show controllers serial 0/0/0 | include cable` and `... 0/0/1 ...` must both
-say `DCE`; if one says DTE, that cable is the wrong way round: swap its ends (power stays on). Then
-`show ip interface brief`: both serials `up / up` (SB side is already configured; MG side comes up after the
-next step). `show ip ospf neighbor`: `1.1.1.1 ... FULL/  -   Serial0/0/0` within about 40 seconds.
+**ISP (1941).** After pasting: `show controllers serial 0/0/0 | include DCE|DTE|cable` and the same for
+`0/0/1`: each must print a line beginning `DCE` (the V.35 or V.11 text after it does not matter; `No serial
+cable attached` means unplugged). If one says `DTE`, that cable is the wrong way round: swap its ends (power
+stays on). Then `show ip interface brief`: `Serial0/0/0 up / up` now; `Serial0/0/1` stays down until MG is
+configured. `show ip ospf neighbor`: `1.1.1.1 ... FULL/  -   Serial0/0/0` within about 40 seconds.
 
-**MG (1941).** After pasting: `show ip interface brief`: `Serial0/0/1 209.165.200.18 up / up`,
-`GigabitEthernet0/1 172.16.0.1 up / up` (up only once cable 4 and MG-S1 are in place; if down, carry on).
-`show ip ospf neighbor`: `2.2.2.2 FULL`. `ping 192.168.2.1`: five `!` = routing across the three routers
-works. `show ip route`: `O 192.168.2.0/28 [110/...] via 209.165.200.17`.
+**MG (1941).** After pasting: `show controllers serial 0/0/1 | include DCE|DTE|cable` (a line beginning
+`DTE`). `show ip interface brief`: `Serial0/0/1 209.165.200.18 up / up`, `GigabitEthernet0/1 172.16.0.1
+up / up` (up only once cable 4 and MG-S1 are powered and in place; if down, carry on). `show ip ospf
+neighbor`: `2.2.2.2 FULL`. `ping 192.168.2.1`: five `!` = routing across the three routers works.
+`show ip route`: four `O` routes (192.168.2.0/28, 192.168.1.0/26, 192.168.1.64/26, 209.165.200.0/28).
 
 Back on ISP: `show ip ospf neighbor` now lists both 1.1.1.1 and 3.3.3.3 FULL. Screenshot it (evidence).
 
-**SB-S1 (2960).** After pasting: `show vlan brief` (20 CS: Fa0/1-8; 30 Marketing: Fa0/11-18; 90 Server:
+**SB-S1 (2960).** After pasting, wait 30 seconds (the trunk port sits in spanning-tree listening and learning
+that long before it forwards). Then `show vlan brief` (20 CS: Fa0/1-8; 30 Marketing: Fa0/11-18; 90 Server:
 Fa0/9-10 and Gi0/1), `show interfaces trunk` (Gi0/2, mode on, encapsulation 802.1q, VLANs 20,30,90),
 `ping 192.168.2.1` from the switch (five `!`: the SVI, the trunk and the router sub-interface all agree).
 Screenshot `show vlan brief` and `show interfaces trunk` (evidence). Now on SB, `show ip interface brief`
 shows the three sub-interfaces up.
 
 **MG-S1 (2960).** After pasting: `show interfaces status` (Fa0/1 and Gi0/1 `connected`, vlan 1);
-`ping 172.16.0.1` from the switch.
+`ping 172.16.0.1` from the switch (wait 30 seconds after link-up if it fails the first time).
 
-**Final router check.** SB: `ping 172.16.0.1` (five `!`), `show ip route` (O route to 172.16.0.0/24, screenshot).
-MG: `show ip route` (O routes to 192.168.1.0/26, 192.168.1.64/26, 192.168.2.0/28, screenshot).
+**Final router check.** SB: `show ip ospf neighbor` (2.2.2.2 FULL), `ping 209.165.200.2`, `ping 172.16.0.1`
+(five `!`), `show ip route` (O routes to 172.16.0.0/24 and 209.165.200.16/28, screenshot). MG: `show ip route`
+(the four O routes, screenshot).
 `write memory` on all five devices once more, then `show startup-config | include hostname` on each to prove it
 is saved.
 
@@ -194,7 +199,11 @@ or leave them: an address in the same subnet as the VM does no harm.
 
 1. Workstation > Edit > Virtual Network Editor (click "Change Settings" for administrator rights).
 2. Select **VMnet0**. Set Type Bridged and **Bridged to: the lab adapter by name** (the built-in NIC or the USB
-   adapter from A.3), not Automatic. Apply, OK.
+   adapter from A.3), not Automatic. Apply, OK. "Change Settings" needs a local administrator; if a lab PC
+   will not allow it, keep exactly one wired NIC live (TAFE cable out, lab cable in the built-in NIC, Wi-Fi off)
+   and leave VMnet0 on Automatic, which then bridges to the only connected adapter. Never run two live NICs
+   without the editor, or VMware may bridge the DC onto the TAFE network. The host NIC needs no IP address of
+   its own for bridging ("Unidentified network" on the host is fine).
 3. For each VM you will run here: VM > Settings > Network Adapter > **Bridged** (not NAT, not Host-only,
    not Custom), Connect at power on ticked.
 
@@ -227,13 +236,16 @@ Install VMware Tools, reboot.
 
 DC1: Server Manager > Local Server > Computer name > rename to `DC1`, restart. Ethernet > Properties > IPv4:
 `192.168.2.2` / `255.255.255.240` / gateway `192.168.2.1` / preferred DNS `192.168.2.2` / alternate `127.0.0.1`.
-Time zone Brisbane; check the clock. `ping 192.168.2.1` and `ping 172.16.0.1`.
+Time zone Brisbane; check the clock. `ping 192.168.2.1` and `ping 172.16.0.1`. For DC-to-DC pings, first on
+each DC as Administrator: `Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)"`
+(an unpromoted server does not answer ping otherwise).
 
 DC2: rename to `DC2`, restart. IPv4: `172.16.0.2` / `255.255.255.0` / gateway `172.16.0.1` / preferred DNS
 `192.168.2.2` (DC1) / alternate blank for now. `ping 172.16.0.1`, `ping 192.168.2.2`.
 
 From DC2, before any domain join (the video's rule): `nslookup dc1.<domain>` must answer, which it can only do
-after DC1 has been promoted and its DNS zone exists. That is Work Package 1 on DC1 (Add Roles > AD DS >
+after DC1 has been promoted and its DNS zone exists; also `Test-NetConnection 192.168.2.2 -Port 53` and
+`-Port 389`, and `Resolve-DnsName -Type SRV _ldap._tcp.dc._msdcs.<domain> -Server 192.168.2.2`. That is Work Package 1 on DC1 (Add Roles > AD DS >
 Promote > **Add a new forest** > `<student1>.<student2>`), then Work Package 2 on DC2. Those steps are the
 report's Section E and the brief; they start once the teacher's OS answer is in and the network above passes.
 
@@ -242,7 +254,9 @@ report's Section E and the brief; they start once the teacher's OS answer is in 
 * Photo of the cabled rack (A.5).
 * ISP `show ip ospf neighbor` with two FULL neighbours.
 * SB and MG `show ip route`.
-* SB-S1 `show vlan brief` and `show interfaces trunk`.
+* SB-S1 `show vlan brief` and `show interfaces trunk`; with the VMs running, `show mac address-table dynamic`
+  and `show interfaces status` on both switches (VM MACs start 00:0c:29: proves which port each host is on).
+* Every device: `terminal length 0`, `show running-config`, `show ip interface brief` into the PuTTY log.
 * The computer-to-gateway and computer-to-far-gateway pings from both computers (C.1), later repeated from
   inside DC1 and DC2.
 * The PuTTY log files from `C:\Lab8\` copied into `02_student_work/network/` (replace the enable secret and

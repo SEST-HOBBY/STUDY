@@ -50,8 +50,8 @@ show running-config
 show startup-config
 dir flash:
 show ip interface brief
-show controllers serial 0/0/0 | include cable
-show controllers serial 0/0/1 | include cable
+show controllers serial 0/0/0 | include DCE|DTE|cable
+show controllers serial 0/0/1 | include DCE|DTE|cable
 ```
 (Repeat the `show controllers` line for every serial interface that `show ip interface brief` lists; the names
 depend on which slot the card sits in: slot 0 gives Serial0/0/0 and 0/0/1, slot 1 gives Serial0/1/0 and 0/1/1.)
@@ -263,8 +263,8 @@ moulded DTE, the other DCE); 2 Ethernet router-to-switch; 1 Ethernet per VM host
 of both serial cables on the ISP router.** The router interface that has the DCE end supplies the clock; IOS
 15.x on a HWIC-2T inserts `clock rate 2000000` by itself when it sees a DCE cable, and the build will set the
 lab's value explicitly (for example `clock rate 128000`) so the configs are deliberate. Confirm which end is
-fitted with `show controllers serial 0/0/0 | include cable` (`DCE V.11 (X.21) cable`, `DTE ... cable` or
-`No serial cable`). Leave the serial `bandwidth` default (1544) unless the worksheet says otherwise.
+fitted with `show controllers serial 0/0/0 | include DCE|DTE|cable` (a line beginning `DCE` or `DTE`; `No serial
+cable attached` means unplugged). Leave the serial `bandwidth` default (1544) unless the worksheet says otherwise.
 
 ## Part 5. Record
 
