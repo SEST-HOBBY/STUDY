@@ -374,19 +374,20 @@ section until Section A's copy exists.
 ### B.0 The rack as photographed (2026-10-21)
 
 Photo: `02_student_work/network/rack_photo_2026-10-21.jpg`. **The tape and marker labels on this shared rack
-mean nothing** (the student's own statement; the equipment is relabelled by whoever used it last), so they are
-not recorded here. What matters is the hardware and the cabling.
+say nothing about what is configured on a device or what role it had** (the student's own statement; the
+equipment is relabelled by whoever used it last). They are kept in the table only as physical handles, so that
+cabling instructions can say "the 1941 labelled ISP, port S0/0/1" and be unambiguous.
 
-| Position | Device (from the front panel) | Slots and ports | Cables |
-|---|---|---|---|
-| 1 (top) | Cisco 2911 ISR (`PWR-2911-AC`) | EHWIC 0 = HWIC-2T (two smart-serial ports, S0/0/0 and S0/0/1); EHWIC 1 to 3 blank; GE0/0, GE0/1, GE0/2; console RJ45 and USB; AUX | No network cables; powered (EN LED lit) |
-| 2 | Cisco 1941 | EHWIC 0 = HWIC-2T (S0/0/0, S0/0/1); EHWIC 1 blank; GE0/0, GE0/1; console | Power cord only |
-| 3 | Cisco 1941 | EHWIC 0 = HWIC-2T; GE0/0, GE0/1; console | Power cord only |
-| 4 | empty shelf | | |
-| 5 | Catalyst 3750G PoE-24 (old owner's asset and IP stickers) | 24 x GE, 4 x SFP | None; no LEDs lit |
-| 6 | Catalyst 2960 Plus | 24 x FE, 2 x SFP, 2 x GE | None |
-| 7 | Catalyst 2960 | 24 x FE, 2 x GE | None |
-| 8 (bottom) | Catalyst 2960 | 24 x FE, 2 x GE | None |
+| Position | Device (from the front panel) | Chassis label (physical handle only) | Slots and ports | Cables |
+|---|---|---|---|---|
+| 1 (top) | Cisco 2911 ISR (`PWR-2911-AC`) | rail tape `BNE`, marker `R1` | EHWIC 0 = HWIC-2T (two smart-serial ports, S0/0/0 and S0/0/1); EHWIC 1 to 3 blank; GE0/0, GE0/1, GE0/2; console RJ45 and USB; AUX | No network cables; powered (EN LED lit) |
+| 2 | Cisco 1941 | rail tape `ISP` | EHWIC 0 = HWIC-2T (S0/0/0, S0/0/1); EHWIC 1 blank; GE0/0, GE0/1; console | Power cord only |
+| 3 | Cisco 1941 | rail tape `CNS`, marker `3` / `R2` | EHWIC 0 = HWIC-2T; GE0/0, GE0/1; console | Power cord only |
+| 4 | empty shelf | | | |
+| 5 | Catalyst 3750G PoE-24 | none (old owner's asset and IP stickers) | 24 x GE, 4 x SFP | None; no LEDs lit |
+| 6 | Catalyst 2960 Plus | marker `MG-S1`, sticker `5` | 24 x FE, 2 x SFP, 2 x GE | None |
+| 7 | Catalyst 2960 | tape `BNE S1` | 24 x FE, 2 x GE | None |
+| 8 (bottom) | Catalyst 2960 | tape `CNS S1` | 24 x FE, 2 x GE | None |
 
 What this means:
 
