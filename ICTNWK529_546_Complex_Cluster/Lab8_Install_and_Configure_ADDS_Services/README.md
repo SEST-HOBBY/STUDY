@@ -10,9 +10,10 @@ Source priority: (1) current teacher directions and marking requirements, (2) th
 
 ## Status (2026-10-15)
 
-Nothing has been verified yet. Old VMware files dated 2025-10-22 have been found (`DC2.Eric.Roly` and
-`Windows Server 2019`); they may hold most of the 2025 lab. First job is read-only recovery and inventory, not
-configuration. See `05_analysis/Lab8_Initial_Report_2026-10-15.md` for the full report: recovered assets,
+Old VMware files have been found and their configuration files read (2026-10-21): `DC2.Eric.Roly` is a Windows
+Server 2019 VM built on 21/10/2025 and last run 22/10/2025, cleanly shut down, no snapshots; `Windows Server 2019`
+is a blank 13-minute install and not DC1; a third VM (DC1 candidate) ran beside DC2 and has not been found yet.
+Nothing has been booted. First job is still read-only recovery and inventory, not configuration. See `05_analysis/Lab8_Initial_Report_2026-10-15.md` for the full report: recovered assets,
 network verification plan, AD reuse decision tree, 12-WP completion matrix, minimum path, missing files, and the
 single next action (Section G). The report was drafted with AI assistance and reviewed in two passes; product-knowledge
 inferences are labelled as such and every fact about our machines is marked unverified until live output confirms it.
@@ -26,7 +27,7 @@ inferences are labelled as such and every fact about our machines is marked unve
 | (wanted) `ICTNWK529_ICTNWK546_AT1 WORKING ON.docx` | 02_student_work | Student's working portfolio (template with teacher demo screenshots) | Not yet in the repo. Keep the filename until the teacher confirms the label |
 | (wanted) `Fix_how to fix the SID when clone a Windows VM from a template.txt` | 01_supplied_reference | Teacher handout | Sysprep procedure for fresh clones only |
 | (wanted) `SB / ISP / MG / SB-S1 / MG-S1 complete CONFIG.txt` | 01_supplied_reference/cisco_configs | Student's Lab 1 to 3 configs | Early addressing (192.168.10.x). Reference only; never paste onto live devices |
-| (wanted) `*.vmx`, `vmware.log`, directory listing | 02_student_work/vm_inventory | From the old VMware folder | Text only. The `.vmdk` disks stay on the host |
+| `vm_inventory/SERVER_VM_FOR_LAB_8-9/` (`*.vmx`, `*.vmsd`, `*.vmxf`, `vmware.log`, `vmware-1.log`) | 02_student_work | Copied from the old VMware folder on 2026-10-21 | Text only, as received. The `.vmdk`, `.nvram` and `autoinst.flp` stay with the originals. Read in the report, Section A.11 |
 | (wanted) `show running-config` and show output per Cisco device, redacted | 02_student_work/network | Live devices, read-only | Text only; passwords and keys replaced with `<redacted>` |
 | `screenshots/` | 02_student_work | My evidence screenshots | Suggested names `Lab8-01A-DC1-Promoted.png` ... `Lab8-10-Ubuntu-Realm.png` |
 

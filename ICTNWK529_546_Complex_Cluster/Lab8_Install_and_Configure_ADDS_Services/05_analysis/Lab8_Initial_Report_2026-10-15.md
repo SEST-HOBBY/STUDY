@@ -13,23 +13,30 @@ been checked, but how it applies to these particular machines is inference until
 
 ## 0. Current-state inventory (as known today)
 
+Updated 2026-10-21 from the recovered `.vmx`, `.vmsd`, `.vmxf`, `.nvram`, `autoinst.flp`, `vmware.log` and
+`vmware-1.log` files and a screenshot of the folder (details in A.11).
+
 | Item | Known | Source | Verified |
 |---|---|---|---|
-| VM `DC2.Eric.Roly` | .vmx 3 KB, .vmdk 10.33 GB, .nvram 271 KB, dated 2025-10-22 | iPhone directory listing | No |
-| VM `Windows Server 2019` | .vmx 3 KB, .vmdk 9.45 GB, .nvram 271 KB; `autoinst.flp` 884 KB somewhere in the folder | iPhone directory listing | No |
-| Snapshots, delta disks, suspend files, logs, lock folders | Unknown; the listing may be incomplete | | No |
-| VMware host product and version | Unknown (Easy Install floppy hints at Workstation, Player or Fusion) | | No |
-| Guest OS of each VM | Probably Windows Server 2019 (folder names); brief requires 2012 R2 | Filenames only | No |
-| Windows computer names | Possibly DC2 and unknown | Filename only | No |
-| Domain name | Possibly `Eric.Roly` (filename). Must be read inside Windows | Filename only | No |
-| DC1 | No VM identifiable as DC1 in the listing. `Windows Server 2019` might be it, or a template | | No |
-| DC2 promoted as a DC? FSMO holder? | Unknown | | No |
-| SB-DNS-2, SB-FS2, SB-DNS-1/SB-FS1, CS-PC-1, Ubuntu | No VM in the listing matches any of these | | No |
-| Administrator passwords (local, domain, DSRM) | Unknown whether the student has them | | No |
+| Folder | One flat folder `SERVER VM FOR LAB 8-9` holding both VMs; a `caches` folder dated 16/03/2026 | Screenshot | Yes |
+| VM `DC2.Eric.Roly` | Created 21/10/2025 19:25 by Easy Install; ran 21/10 19:25 to 21:05 and 22/10 19:14 to 20:55; cleanly shut down; no snapshots; UEFI; 2 vCPU, 2 GB; 60 GB NVMe disk, 10,090,304 KB used; VMware Tools 11.1.5 installed | .vmx, .vmsd, .vmxf, logs | Yes |
+| VM `Windows Server 2019` | Created 22/10/2025 19:03 by Easy Install; ran about 13 minutes (off 19:16:42); Tools never installed; Easy Install floppy still attached; NAT network; no snapshots | .vmx, .vmxf, logs | Yes |
+| Snapshots, delta disks, suspend files, lock folders | None of any of them, for either VM | .vmsd (empty), .vmx (`redo = ""`, `cleanShutdown = TRUE`), screenshot | Yes |
+| VMware host product and version | VMware Workstation 16.1.0 build 17198959 on 64-bit Windows; TAFE lab PCs TQ-D62ZRJ3 (21/10) and TQ-7SXZNJ3 (22/10); VM files on an `E:` drive carried between them | vmware-1.log, vmware.log | Yes |
+| Guest OS inside DC2 | Windows Server 2019, build 17763 (server product type), installed from the Sept 2019 volume-licence ISO with the public KMS client key: not an Evaluation edition | vmware.log (WDDM line), .vmx (ISO path), autoinst.flp | Yes |
+| Windows computer name of DC2 | Not in any file. Easy Install auto-generates a name; whether it was renamed to DC2 is unknown | | No |
+| Domain name | Not in any file. Possibly `Eric.Roly` (VM name). Must be read inside Windows | | No |
+| DC1 | NOT the `Windows Server 2019` VM (a 13-minute fresh install). A third VM ran alongside DC2 on 22/10 (log shows 3 then 2 VMs running); its files are not in this folder | vmware.log MemSched | Partly |
+| DC2 promoted as a DC? FSMO holder? | Unknown. DC2 had about 3 h 20 min of total run time after its install, enough for a promotion, but nothing in the files shows one | | No |
+| DC2 network | 21/10: NAT. 22/10: custom `VMnet1` (host-only by default on Workstation; could have been re-bridged on the lab PC; cannot tell from the files) | .vmx, logs | Yes (setting), No (what VMnet1 was) |
+| DC2 identity change | On 22/10 the moved-or-copied prompt was answered as COPIED: new SMBIOS UUID, new VM Generation ID, new MAC (00:0c:29:2e:2b:c6 became 00:0c:29:32:7c:40) | vmware.log | Yes |
+| Local logon account | Easy Install created local administrator `471562641` (the student number) with an EMPTY password and auto-logon, on the `Windows Server 2019` VM for certain and very probably on DC2 (same wizard, previous day) | autoinst.flp | Yes (WS2019), Probable (DC2) |
+| SB-DNS-2, SB-FS2, SB-DNS-1/SB-FS1, CS-PC-1, Ubuntu | No VM in the folder matches any of these | Screenshot | Yes |
+| Domain and DSRM passwords | Unknown whether the student has them | | No |
 | Cisco SB, ISP, MG, SB-S1, MG-S1 | Early Lab 1 to 3 configs in hand (192.168.10.x). Later re-addressing to 192.168.1.x / 192.168.2.0/28 believed current | Config files; project memory | No |
 | Routing SB to MG, VPN/OSPF, ACLs or zone firewall | Unknown today | | No |
-| Which switch port the VM host uses; VLAN 90 membership | Unknown (brief says Gi0/1; early config makes Gi0/1 a trunk) | | No |
-| Time since the VMs last ran | About 358 days (if file dates are last-modified dates) | File dates | No |
+| Which switch port the VM host uses; VLAN 90 membership | Unknown (brief says Gi0/1; early config makes Gi0/1 a trunk). Note the recovered VMs were never bridged (NAT, then VMnet1) | | No |
+| Time since the VMs last ran | 364 days (last power-off 22/10/2025 20:55) | vmware.log | Yes |
 
 Sections A to F below are the detailed plan for each row. Section G is the one thing to do next.
 
@@ -67,19 +74,25 @@ Not seen but must be looked for (the listing came from a phone and may be incomp
 
 ### A.2 The two VMs as currently known
 
+Updated 2026-10-21 (see A.11 for the evidence behind each cell).
+
 | Item | DC2.Eric.Roly | Windows Server 2019 |
 |---|---|---|
-| Files seen | `.vmx` 3 KB, `.vmdk` 10.33 GB, `.nvram` 271 KB | `.vmx` 3 KB, `.vmdk` 9.45 GB, `.nvram` 271 KB |
-| File dates | 2025-10-22 (about 358 days ago, if last-modified) | same |
-| Easy Install floppy owner | Cannot determine | Cannot determine |
-| Snapshot chain, suspend file, lock folders | Cannot determine | Cannot determine |
-| Firmware, guestOS, network mode, MAC | Cannot determine (read from `.vmx`) | Cannot determine |
-| Windows computer name | Cannot determine (VM name suggests DC2; not evidence) | Cannot determine (could be DC1, a template, or something else) |
-| OS edition and build; Evaluation or not | Cannot determine | Cannot determine |
-| Domain membership and name | Cannot determine (possibly Eric.Roly, to be read inside Windows) | Cannot determine |
-| Role: DC / member / workgroup | Cannot determine | Cannot determine |
-| IP, mask, gateway, DNS | Cannot determine (tutorial final DC2 is 172.16.0.2/24; unverified) | Cannot determine |
-| Passwords known to the student | Cannot determine | Cannot determine |
+| Files | `.vmx` 4 KB, `.vmdk` 10,090,304 KB, `.nvram` 265 KB, `.vmsd` 0 KB, `.vmxf` 4 KB | `.vmx` 3 KB, `.vmdk` 9,227,968 KB, `.nvram` 265 KB, `.vmsd` 0 KB, `.vmxf` 1 KB |
+| Created | 21/10/2025 19:25 (Easy Install, lab PC TQ-D62ZRJ3) | 22/10/2025 19:03 (Easy Install, lab PC TQ-7SXZNJ3) |
+| Runs | 21/10 19:25 to 21:05; 22/10 19:14 to 20:55 (both clean shutdowns) | 22/10 19:03 to 19:16:42 only (clean shutdown) |
+| Easy Install floppy | Used on 21/10, detached at the 22/10 power-on (`floppy0.present = FALSE`) | Still attached (`floppy0.fileName = "autoinst.flp"`); the floppy in the folder (22/10 19:04) is this VM's |
+| Snapshot chain, suspend file, lock folders | None | None |
+| Firmware, guestOS, hardware | UEFI (Secure Boot certs present), `windows2019srv-64`, HW version 18, 2 vCPU, 2048 MB, NVMe 60 GB disk | Same |
+| Network mode, MAC | custom `VMnet1`, e1000e, MAC 00:0c:29:32:7c:40 (regenerated 22/10; was 00:0c:29:2e:2b:c6) | NAT, e1000e, MAC 00:0c:29:b5:dc:ba |
+| VMware Tools | 11.1.5.22735 installed and running on 22/10 | Never installed (`tools.remindInstall = TRUE`, no manifest) |
+| Windows computer name | Cannot determine (not in any file; Easy Install generates `WIN-xxxx`; renaming to DC2 is unverified) | Cannot determine (almost certainly the generated `WIN-xxxx`) |
+| OS edition and build | Server 2019 build 17763 confirmed by Tools; Standard, volume-licence media, KMS client key (not Evaluation) | Same media and key; whether Setup completed is unknown |
+| Domain membership and name | Cannot determine (possibly Eric.Roly, to be read inside Windows) | Workgroup (never configured; 13 minutes of life) |
+| Role: DC / member / workgroup | Cannot determine | Workgroup, fresh install, a possible template |
+| IP, mask, gateway, DNS | Cannot determine (tutorial final DC2 is 172.16.0.2/24; unverified) | DHCP from VMware NAT, if anything |
+| Local logon | Very probably local admin `471562641`, empty password, auto-logon (same wizard as the other VM; unproven) | Local admin `471562641`, empty password, auto-logon (from `autoinst.flp`) |
+| Domain / DSRM passwords known to the student | Cannot determine | Not applicable |
 
 ### A.3 Reading the `.vmx` files (read-only, on the originals)
 
@@ -240,8 +253,14 @@ and NTDS.dit hold password material) and delete `C:\HiveCopy` when done.
 
 ### A.8 Evaluation licence expiry
 
+**Update 2026-10-21: does not apply to these two VMs.** Both were installed from the volume-licence Server 2019
+media with the public KMS client key (A.11), not from the Evaluation ISO. Without a KMS server they are simply
+unactivated (desktop watermark, some personalisation blocked); there is no 180-day timer and no hourly shutdown.
+Still capture `slmgr /dlv` and `/xpr` on first boot to confirm. The paragraph below is kept for any Evaluation
+VM built later.
+
 Server 2012 R2 and 2019 Evaluation editions run 180 days from install or last rearm, calendar time, so after
-about 358 days off they have very probably expired unless rearmed within 180 days of 2025-10-22 (Cannot
+about a year off they have very probably expired unless rearmed within 180 days of the last use (Cannot
 determine). An expired evaluation still boots and logs on, shows "Windows License is expired", may black the
 desktop, and **shuts down once an hour**; on a DC that is an unclean interruption. Plan A.5 to finish within the
 hour and capture `slmgr /dlv` and `/xpr` first. `slmgr /rearm` plus a restart resets the 180 days; the remaining
@@ -274,6 +293,71 @@ clock is a Section C.6 step, not a first-boot step.
 8. Or, after A.6 per disk copy: `ComputerName`, `Domain`, the static `Interfaces\{GUID}` block, whether
    `NTDS\Parameters` and `DNS\Parameters` exist, `ProductName`, `EditionID`, `CurrentBuild`.
 9. Which Administrator passwords (local, domain, DSRM) the student has, as a yes/no per VM, never the passwords.
+
+Received 2026-10-21: items 1 (as a screenshot), 2, 3 and the `.nvram` files and `autoinst.flp`. Still open:
+items 5 (the host to be used now, its RAM and NICs), 6, 7 and 9.
+
+### A.11 What the recovered files say (read 2026-10-21)
+
+Copies of the text files are in `02_student_work/vm_inventory/SERVER_VM_FOR_LAB_8-9/`. The `.vmdk`, `.nvram`
+and `autoinst.flp` stay with the originals.
+
+**Timeline (Brisbane time, from the two logs and the file dates)**
+
+| When | Event | Evidence |
+|---|---|---|
+| 21/10/2025 19:25 | `DC2.Eric.Roly` created and powered on by Easy Install on lab PC TQ-D62ZRJ3 (VMware Workstation 16.1.0 build 17198959, Windows host). Network NAT, Easy Install floppy attached. Tools not running at 19:28; Setup writes 19:29 to 19:36; guest-requested reset 19:36 (Setup reboot) | `vmware-1.log`; `.vmsd` date |
+| 21/10/2025 21:05 | DC2 shut down cleanly (1 h 40 min run: unattended install, Tools install, time for configuration) | `vmware-1.log` tail |
+| 22/10/2025 19:03 | `Windows Server 2019` VM created by Easy Install on lab PC TQ-7SXZNJ3; its answer floppy overwrote `autoinst.flp` at 19:04 | `.vmsd`, `.vmxf`, floppy dates |
+| 22/10/2025 19:14 | DC2 powered on on TQ-7SXZNJ3 (a different PC, same `E:\...\SERVER VM FOR LAB 8-9` path). Network had been changed to custom `VMnet1` while powered off. The moved-or-copied prompt was answered as **copied**: new `uuid.bios`, new `vm.genid`, new MAC `00:0c:29:32:7c:40`. Easy Install floppy detached. Three VMs running on the PC at this moment | `vmware.log` lines 553 to 695, MemSched `numvm 3` |
+| 22/10/2025 19:16:42 | `Windows Server 2019` VM powered off cleanly after about 13 minutes; Tools never installed | `vmware.log` tail (second VM's lines), `.vmx`, `.vmxf` |
+| 22/10/2025 19:16:51 | DC2's guest reports Windows build 17763, server product type (Server 2019); Tools 11.1.5 running | `vmware.log` line 1342, 1401 |
+| 22/10/2025 19:46 to 20:46 | Two VMs still running on the PC: DC2 and a third VM whose files are not in this folder | `vmware.log` MemSched `numvm 2` |
+| 22/10/2025 20:55 | DC2 shut down cleanly. Nothing has been powered on since | `vmware.log` tail; file dates |
+| 16/03/2026 | A VM in this folder was opened in the VMware library (not powered on) | `caches` folder date |
+
+**What this settles**
+
+1. **Host software**: VMware Workstation 16.1.0 (Pro licence) on TAFE lab PCs. Any Workstation or Player 16.1
+   or newer opens these VMs without a hardware upgrade (HW version 18). Workstation 17 will offer to upgrade the
+   hardware version: decline.
+2. **No snapshots, nothing suspended, both cleanly shut down.** Both VMs are safe to copy and to boot from the
+   copy (A.4, A.5).
+3. **Server 2019 confirmed inside DC2** (build 17763). Register item 8 stands and goes to the teacher. The
+   media is the volume-licence ISO `en_windows_server_2019_updated_sept_2019_x64_dvd_199664ce.iso` with the
+   public KMS client key applied at first logon, so neither VM is an Evaluation edition (A.8 updated).
+4. **`Windows Server 2019` is not DC1.** It is a 13-minute-old unattended install made the day after DC2, with
+   no Tools, no configuration and a NAT NIC. If Setup completed it is a blank workgroup server that auto-logs
+   on as local administrator `471562641` with no password; it is a reasonable base for SB-DNS-2 or SB-FS2
+   (Sysprep is appropriate for a never-joined install) and useless as DC1 evidence.
+5. **DC1 is somewhere else.** A third VM ran beside DC2 on TQ-7SXZNJ3 for the whole evening of 22/10. Its files
+   must be in another folder: on the same `E:` drive, on the lab PC's own disk, or on the second student's
+   drive. Finding it is now the next action (Section G).
+6. **DC2 was never bridged to the lab network in these files.** NAT on 21/10, then custom VMnet1 on 22/10.
+   VMnet1 is host-only by default on Workstation (its own 192.168.x.0/24 with VMware DHCP). It can be changed
+   to bridged in the Virtual Network Editor, but that setting lives on the lab PC, not in these files. Two
+   readings fit: (a) DC1 and DC2 both ran on that one PC on VMnet1 and talked only to each other, in which case
+   the whole 2025 Lab 8 was done without the Cisco network and the 192.168.2.0/28 and 172.16.0.0/24 addressing
+   may still have been typed in; or (b) VMnet1 was re-bridged on that PC. The first boot (A.5) answers it by
+   reading DC2's static IP, mask, gateway and DNS.
+7. **DC2's identity changed on 22/10.** Choosing "copied" regenerated the SMBIOS UUID, the VM Generation ID
+   and the MAC. The PCI slot of the NIC did not change, so Windows most likely kept the same adapter and its
+   static IP, but this is not proven; if DC2 was already a DC on 21/10, the Generation ID change made it reset
+   its invocation ID on 22/10 (expected, harmless). For our own first boot of the copy the answer is still
+   **I Moved It**.
+8. **Logon account.** Easy Install created local administrator `471562641` (the student number) with an empty
+   password and auto-logon, with `net accounts /MAXPWAGE:UNLIMITED` run at first logon. That is certain for the
+   `Windows Server 2019` VM and very probable for DC2. If DC2 was promoted to a DC, the DOMAIN Administrator
+   password was set during promotion (or inherited from the built-in Administrator, whose password Easy Install
+   did not set) and is not in any file; the DSRM password likewise. Auto-logon normally stops working after
+   promotion because the local account becomes a domain account.
+9. **Hardware**: 2 vCPU and 2 GB RAM per VM. Two or three of these at once need a host with at least 8 GB.
+10. **The `.nvram` files** hold UEFI boot entries (NVMe disk, SATA CD-ROM, network with the MAC, Windows Boot
+    Manager at `\EFI\Microsoft\Boot\bootmgfw.efi`) and the Microsoft Secure Boot certificates. DC2's still names
+    the old MAC `00:0c:29:2e:2b:c6` in its network-boot entry; harmless.
+
+**What remains unknown until a boot (A.5)**: DC2's Windows name, domain, DC role, FSMO roles, static IP and DNS
+settings, and whether the domain Administrator and DSRM passwords are known.
 
 ---
 
@@ -732,8 +816,8 @@ As of 2026-10-15 nothing has been booted or inspected, so no WP can be Verified 
 
 | WP | Official lab | Status | Existing evidence | Missing requirements | Required action now | Machine / device |
 |---|---|---|---|---|---|---|
-| 1 | 8.1 Install and promote DC1 (new forest, DNS, GC) | Cannot determine | `Windows Server 2019.vmx/.vmdk/.nvram` (2025-10-22); `autoinst.flp`; no screenshots | Which VM is DC1; its name, domain, roles; teacher ruling on 2019 vs 2012 R2 | A.4 copy; A.3 read; A.5 first boot (NIC disconnected, "I Moved It", the A.5 command table) | `Windows Server 2019` VM (identity unknown); SB VLAN 90 |
-| 2 | 8.1 Join and promote DC2 (additional DC, DNS, GC) | Cannot determine | `DC2.Eric.Roly.vmx/.vmdk/.nvram` (2025-10-22); filename only | Proof DC2 is an additional DC with DNS and GC; `nslookup` of DC1 before join; replication health after ~358 days offline (C.1); written answers NTP, stratum, authentication, AD DS | Same A.5 inspection; then C.2 / C.3 branch with the teacher; no demotion or re-promotion before the read-only output is saved and the teacher agrees | `DC2.Eric.Roly` VM; MG LAN (172.16.0.2 per tutorial, unverified) |
+| 1 | 8.1 Install and promote DC1 (new forest, DNS, GC) | Cannot determine | No DC1 VM found. The `Windows Server 2019` VM is a blank 13-minute install (A.11), not DC1. A third VM ran beside DC2 on 22/10/2025 and is the candidate | The DC1 VM files; its name, domain, roles; teacher ruling on 2019 vs 2012 R2 (Server 2019 now confirmed in DC2) | Find the third VM (Section G); then A.4 copy, A.3 read, A.5 first boot | Unknown third VM; SB VLAN 90 |
+| 2 | 8.1 Join and promote DC2 (additional DC, DNS, GC) | Cannot determine | `DC2.Eric.Roly` VM: Server 2019 build 17763, Tools installed, cleanly shut down 22/10/2025 20:55, no snapshots; 3 h 20 min of post-install run time; no file shows a promotion | Proof DC2 is an additional DC with DNS and GC; `nslookup` of DC1 before join; replication health after a year offline (C.1); written answers NTP, stratum, authentication, AD DS | A.4 copy; A.5 first boot of the copy (NIC disconnected, "I Moved It", the A.5 command table); then C.2 / C.3 with the teacher | `DC2.Eric.Roly` VM; last network custom VMnet1 (not the lab); MG LAN per tutorial, unverified |
 | 3 | 8.2 Sites SB and MG, four subnets | Cannot determine | None | Sites SB, MG; subnets 192.168.1.0/26, 192.168.1.64/26, 192.168.2.0/28 -> SB; 172.16.0.0/24 -> MG; DC1 under SB, DC2 under MG; written answer on site-based client routing | After a DC is up: `Get-ADReplicationSite/Subnet`, screenshot dssite.msc; create only what is missing | DC1 preferred |
 | 4 | 8.3 Site link, OUs, group, replication | Cannot determine | None | DEFAULTIPSITELINK 180 min, Mon-Fri 09:00-18:00 unavailable; OU Admin, OU Server, `global_computers` (Global, Security) in Server; Replicate Now; `repadmin /syncall /AdeP`, `/replsummary`; objects seen on DC2 | Read current site link, OUs, groups first; use the brief's names, not Servers/global_servers (item 2) | DC1 (create), DC2 (verify) |
 | 5 | 8.4A DC1 DNS zone | Cannot determine | None | Primary, AD-integrated, scope "all DNS servers on DCs in this domain" (not forest: item 3); SOA refresh 30 min | `Get-DnsServerZone`, SOA; screenshot General and SOA tabs; change only what differs | DC1 |
@@ -833,24 +917,27 @@ an answer.
 
 ## G. Next single action
 
-**Produce the folder listing and send both `.vmx` files. Nothing else yet. This changes nothing.**
+Done 2026-10-21: the folder listing, both `.vmx` files, the logs and the floppy were received and read (A.11).
 
-On the computer that holds the old VMware folder:
+**Now: find the third VM. Search every drive you own for other VMware files. This changes nothing.**
 
-1. Listing, including hidden files, written outside the VM folder:
-   * Windows PowerShell: `Get-ChildItem -Recurse -Force "<path to folder>" | Select FullName,Length,LastWriteTime | Format-Table -AutoSize | Out-File -Width 500 "$env:USERPROFILE\Desktop\vm_listing.txt"`
-   * Windows cmd: `dir /a /s "<path to folder>" > "%USERPROFILE%\Desktop\vm_listing.txt"`
-   * macOS or Linux: `ls -laR "<path to folder>" > ~/Desktop/vm_listing.txt`
-2. Open `DC2.Eric.Roly.vmx` and `Windows Server 2019.vmx` with Notepad (right-click > Open with; do not
-   double-click) and copy their contents in full. Do not save.
-3. Copy the newest `vmware.log` from each VM folder if present.
-4. Send back the listing, both `.vmx` texts, the logs, and the VMware product and version (Help > About). Not the
-   `.vmdk` files.
+On the computer that holds the old folder (and on the old `E:` drive if it is a different disk), open a command
+prompt and run, once per drive letter:
 
-What this answers: which disk belongs to which VM; whether snapshot, delta or suspend files exist; the guest OS
-type each VM was created as; the network mode (bridged, NAT, host-only) and MAC; whether the VMs were closed
-cleanly. With that, the backup copy (A.4) is made and the first isolated boot (A.5) is planned. Nothing in Work
-Packages 1 to 12 starts before this.
+```
+dir /s /b E:\*.vmx E:\*.vmdk E:\*.vmsd > "%USERPROFILE%\Desktop\vmx_search_E.txt"
+dir /s /b C:\*.vmx C:\*.vmdk > "%USERPROFILE%\Desktop\vmx_search_C.txt"
+```
+
+(repeat for D:, F: and any USB drive; `dir /s /b` lists full paths without touching the files). Also look in
+`%USERPROFILE%\Documents\Virtual Machines` and in VMware's library (open Workstation: the left-hand Library list
+shows every VM it knows, with a path on hover; do not power anything on). If a TAFE lab PC TQ-7SXZNJ3 is still
+reachable, the third VM may be on its local disk or in another student's folder; ask the teacher and the second
+student (Eric) whether DC1 lives on their drive.
+
+Send back the search output and a screenshot of the Workstation Library. Then, whatever is found, the next
+step is the backup copy (A.4) of every VM folder, followed by the first isolated boot of DC2 (A.5). Nothing in
+Work Packages 1 to 12 starts before this.
 
 ---
 

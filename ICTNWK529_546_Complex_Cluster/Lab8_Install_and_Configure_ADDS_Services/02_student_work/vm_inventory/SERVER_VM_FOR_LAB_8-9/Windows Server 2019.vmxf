@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Foundry>
+<VM>
+<VMId type="string">52 fc ae b1 b7 52 ed 26-da c6 bd 03 5b f6 91 f1</VMId>
+<ClientMetaData>
+<clientMetaDataAttributes/>
+<HistoryEventList/></ClientMetaData>
+<vmxPathName type="string">Windows Server 2019.vmx</vmxPathName></VM></Foundry>
