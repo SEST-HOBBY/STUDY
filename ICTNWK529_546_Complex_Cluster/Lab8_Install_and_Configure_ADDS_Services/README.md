@@ -10,10 +10,11 @@ Source priority: (1) current teacher directions and marking requirements, (2) th
 
 ## Status (2026-10-15)
 
-Old VMware files have been found and their configuration files read (2026-10-21): `DC2.Eric.Roly` is a Windows
-Server 2019 VM built on 21/10/2025 and last run 22/10/2025, cleanly shut down, no snapshots; `Windows Server 2019`
-is a blank 13-minute install and not DC1; a third VM (DC1 candidate) ran beside DC2 and has not been found yet.
-Nothing has been booted. First job is still read-only recovery and inventory, not configuration. See `05_analysis/Lab8_Initial_Report_2026-10-15.md` for the full report: recovered assets,
+Old VMware files have been found and their configuration files and logs read (2026-10-21): `DC2.Eric.Roly` is a
+Windows Server 2019 Datacenter VM built on 21/10/2025 and last run 22/10/2025 (hard power-offs, no snapshots)
+that reported itself a non-DC server at every boot, so it was almost certainly never promoted; `Windows Server
+2019` is an interrupted install; no DC1 has been found. Expected path: fresh build of both DCs, after one
+confirming boot of the DC2 copy. The Cisco devices will be erased and rebuilt (decision 2026-10-21). See `05_analysis/Lab8_Initial_Report_2026-10-15.md` for the full report: recovered assets,
 network verification plan, AD reuse decision tree, 12-WP completion matrix, minimum path, missing files, and the
 single next action (Section G). The report was drafted with AI assistance and reviewed in two passes; product-knowledge
 inferences are labelled as such and every fact about our machines is marked unverified until live output confirms it.
