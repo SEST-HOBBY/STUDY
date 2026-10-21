@@ -18,20 +18,20 @@ Updated 2026-10-21 from the recovered `.vmx`, `.vmsd`, `.vmxf`, `.nvram`, `autoi
 
 | Item | Known | Source | Verified |
 |---|---|---|---|
-| Folder | One flat folder `SERVER VM FOR LAB 8-9` holding both VMs; a `caches` folder dated 16/03/2026 | Screenshot | Yes |
+| Folder | One flat folder `SERVER VM FOR LAB 8-9` holding both VMs, **inside OneDrive** (`E:\OneDrive\TAFE\ADVANCED NETWORKING\ICTN...`); a `caches` folder dated 16/03/2026. The working copy must go outside OneDrive | Screenshots | Yes |
 | VM `DC2.Eric.Roly` | Created 21/10/2025 19:25 by Easy Install; Windows at the desktop by 19:40; configured until 21:05 (two guest restarts 20:23 and 20:24); ran again 22/10 19:16 to 20:55 with no restart. **Both sessions ended with the Workstation Power Off button, not a Windows shutdown.** No snapshots; UEFI; 2 vCPU, 2 GB; 60 GB NVMe disk, 10,090,304 KB used; VMware Tools 11.1.5 installed | .vmx, .vmsd, .vmxf, logs | Yes |
 | VM `Windows Server 2019` | Created 22/10/2025 19:03 by Easy Install; hard-stopped from the host at 19:16:42 after 12 to 13 minutes, mid-Setup, before first logon; Tools never installed; floppy and install ISO still attached; NAT; no snapshots. Not a server, not a template: do not boot; rebuild from the ISO if a VM is needed | .vmx, .vmxf, logs | Yes |
 | Snapshots, delta disks, suspend files, lock folders | None of any of them, for either VM. (`cleanShutdown = TRUE` only means the VMware process exited normally; Windows inside DC2 was not shut down cleanly) | .vmsd (empty), .vmx, logs, screenshot | Yes |
-| VMware host product and version | VMware Workstation 16.1.0 build 17198959; TAFE lab PCs TQ-D62ZRJ3 (21/10) and TQ-7SXZNJ3 (22/10): Dell, Windows 10 Education, i7-11700, about 64 GB RAM; VM files on a USB external SSD (Realtek RTL9210B bridge) mounted as `E:`, with very slow writes (8 to 10 s, one 75 s) | vmware-1.log, vmware.log | Yes |
+| VMware host product and version | 2025: VMware Workstation 16.1.0 build 17198959 on TAFE lab PCs TQ-D62ZRJ3 (21/10) and TQ-7SXZNJ3 (22/10): Dell, Windows 10 Education, i7-11700, about 64 GB RAM; VM files on a USB external SSD (Realtek RTL9210B bridge) mounted as `E:` (1 TB), very slow writes. 2026: the student's current Workstation library holds only the lab's `Networking_VM_2024` (`D:\Shared_VMs`), i.e. a lab PC again | logs; library screenshot | Yes |
 | Guest OS inside DC2 | Windows Server 2019 **Datacenter** (Desktop Experience), build 17763, from the full (non-evaluation) Sept 2019 ISO; the key applied at first logon is VMware Easy Install's default, not a KMS client key; activation state unknown; no shutdown timer either way | vm3d lines (build, suite mask), autoinst.flp image name, .vmx ISO path | Yes |
 | Windows computer name of DC2 | Not in any file. Easy Install auto-generates a name; whether it was renamed to DC2 is unknown | | No |
 | Domain name | Not in any file. Possibly `Eric.Roly` (VM name). Must be read inside Windows | | No |
-| DC1 | NOT the `Windows Server 2019` VM (an unfinished 13-minute install). The VM running beside DC2 on 22/10 was the lab PC's own `Networking_VM_2022` (`D:\Shared_VMs\...`, holding the USB console cable), not DC1. The only unidentified VM in the logs is a 2 GB VM that ran on TQ-D62ZRJ3 for the whole of 21/10 beside DC2: the sole DC1 candidate, if DC1 ever existed. Nothing shows DC1 on 22/10 | vmware.log 19:16:33 (USB ownership), MemSched lines | Yes (what it is not) |
+| DC1 | **No DC1 exists on the student's drive.** The `*.vmx` search of the whole 1 TB `E:` drive (2026-10-21) found only: DC2.Eric.Roly, Windows Server 2019, `Ubuntu 18.04.5` (last run 21/10/2025 21:05, the same minute DC2 was powered off, so it is the 2 GB VM that ran beside DC2 on 21/10), and the TAFE "VMs for home" templates from 2024 (SERVERA, SERVERB, WIN10 in three folder sets; one SERVERA copy touched 21/10/2025 19:19). The VM beside DC2 on 22/10 was the lab PC's own Networking VM. Only Eric's drive could still hold a DC1 | search screenshots in `02_student_work/vm_inventory/`; logs | Yes |
 | DC2 a domain controller? | **Almost certainly not.** At every recorded boot, including the last (22/10 19:16), Windows reported product type 3 = a server that is not a DC (a DC reports 2), and no restart followed on 22/10, so no promotion completed. It may have been renamed and joined to a domain on 21/10 (two restarts); unproven | vm3d lines in both logs | Yes (not a DC at last boot) |
 | DC2 network | All on 21/10 while running: NAT (19:25) -> host-only (20:11) -> custom `VMnet0`, the default bridged network (20:43) -> custom `VMnet1` (20:45, kept). VMnet1 is host-only by default; whether the lab PC had it re-bridged cannot be read from the files | logs | Yes (settings), No (what VMnet1 was) |
 | DC2 identity change | On 22/10 the moved-or-copied prompt was answered as COPIED: new SMBIOS UUID, new VM Generation ID, new MAC (00:0c:29:2e:2b:c6 became 00:0c:29:32:7c:40) | vmware.log | Yes |
 | Local logon account | Easy Install created local administrator `471562641` (the student number) with an EMPTY password; auto-logon for the first logon only. Certain for the 22/10 wizard values; very probably the same on DC2 (same wizard, same ISO, first logon ran the same template) | autoinst.flp; logs | Probable (DC2) |
-| SB-DNS-2, SB-FS2, SB-DNS-1/SB-FS1, CS-PC-1, Ubuntu | No VM in the folder matches any of these | Screenshot | Yes |
+| SB-DNS-2, SB-FS2, SB-DNS-1/SB-FS1, CS-PC-1, Ubuntu | None built. Resources found on `E:`: TAFE template VMs SERVERA, SERVERB (with three small extra disks) and WIN10 (2024; OS and state unknown, candidates for the member servers and the CS-PC-1 client) and `E:\Ubuntu 18.04.5` (split disks with a two-level snapshot chain, 000003 of 19/08/2025 and 000004 of 21/10/2025; candidate for WP12) | search screenshots | Yes (exist), No (contents) |
 | Domain and DSRM passwords | Unknown whether the student has them | | No |
 | Rack hardware | Cisco 2911 and two 1941s, each with an HWIC-2T two-port serial card; Catalyst 3750G PoE-24, 2960 Plus, two 2960s. Labels on the shared rack are meaningless and are ignored | Photo 2026-10-21 (B.0) | Yes (from photo) |
 | Rack cabling | **None.** No serial or Ethernet cables connected; routers, 3750 and 2960 Plus powered; the two 2960s dark | Photo 2026-10-21, two independent readings | Yes (from photo) |
@@ -992,6 +992,13 @@ an answer.
 ---
 
 ## G. Next single action
+
+**Update 2026-10-21 (evening).** Decisions: Cisco devices erased with no capture; OSPF; two computers (one per
+site). The `*.vmx` search of the 1 TB `E:` drive found no DC1 and identified the 21/10 companion VM as `Ubuntu
+18.04.5`; the DC2 boot is therefore optional (reuse decision only) and the next action moves to the rack:
+`05_analysis/Cisco_build_SB_ISP_MG_2026-10-21.md` (erase, cable, configure, verify, evidence). The VM side waits
+on the teacher's OS ruling (2019 Datacenter is the only media on hand). The earlier text below is kept.
+
 
 Done 2026-10-21: the folder listing, both `.vmx` files, the logs and the floppy were received and read (A.11).
 Corrections the same day: the VM beside DC2 on 22/10/2025 was the lab PC's own Networking VM, not DC1; and

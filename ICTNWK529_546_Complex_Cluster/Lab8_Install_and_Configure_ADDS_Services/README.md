@@ -25,6 +25,8 @@ inferences are labelled as such and every fact about our machines is marked unve
 |---|---|---|---|
 | `Lab8_Initial_Report_2026-10-15.md` | 05_analysis | My analysis, drafted with AI assistance and reviewed | Initial report A to F plus the read-only procedures. Working document; updated as facts arrive |
 | `Cisco_reset_and_rebuild_2026-10-21.md` | 05_analysis | My procedure, drafted with AI assistance | Decision to start the Cisco devices blank: capture, erase, verify, password recovery, the two design choices, device roles |
+| `Cisco_build_SB_ISP_MG_2026-10-21.md` | 05_analysis | My build configuration, drafted with AI assistance | Addressing, cabling, full configs for SB, ISP, MG, SB-S1, MG-S1 (OSPF area 0), host bridging, checks and evidence |
+| `vm_inventory/search_*.png`, `vm_inventory/workstation_library_2026-10-21.png` | 02_student_work | My screenshots | `*.vmx` and `*.vmdk` search of the 1 TB E: drive; Workstation library on the current PC |
 | `network/before_erase/` | 02_student_work | Console logs captured before erasing each device | Passwords redacted |
 | (wanted) `Week 7 Assess Lab 8 Install and Configure ADDS Services.docx` | 00_assessment_documents | TAFE | The written Lab 8 brief. Not yet in the repo |
 | (wanted) `ICTNWK529_ICTNWK546_AT1 WORKING ON.docx` | 02_student_work | Student's working portfolio (template with teacher demo screenshots) | Not yet in the repo. Keep the filename until the teacher confirms the label |

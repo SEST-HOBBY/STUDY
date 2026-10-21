@@ -28,7 +28,12 @@ are confirmed blank and the two design choices in Part 4 are made.
    for a password nobody knows, skip Part 1 for that device (record "not captured, locked" in Part 5) and go to
    Part 3, which ends in the same blank state.
 
-## Part 1. Capture what is there (read-only, about 3 minutes per device)
+## Part 1. Capture what is there (SKIPPED by decision of 2026-10-21: no capture, straight to Part 2)
+
+The student chose a clean slate with no capture. Three items from this part are still needed and are folded
+into Part 2: the config register check before each router reload, and `show inventory` plus `show ip interface
+brief` after the blank boot to confirm the interface names used in the build. The rest of Part 1 is kept for
+reference only.
 
 Even though nothing will be reused, keep a record: it costs nothing and settles any later "what was on it"
 question, and three of the answers decide later steps (config register, serial cards, boot settings). On each
