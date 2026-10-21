@@ -34,7 +34,7 @@ Updated 2026-10-21 from the recovered `.vmx`, `.vmsd`, `.vmxf`, `.nvram`, `autoi
 | SB-DNS-2, SB-FS2, SB-DNS-1/SB-FS1, CS-PC-1, Ubuntu | No VM in the folder matches any of these | Screenshot | Yes |
 | Domain and DSRM passwords | Unknown whether the student has them | | No |
 | Rack hardware | Cisco 2911 and two 1941s, each with an HWIC-2T two-port serial card; Catalyst 3750G PoE-24, 2960 Plus, two 2960s. Labels on the shared rack are meaningless and are ignored | Photo 2026-10-21 (B.0) | Yes (from photo) |
-| Rack cabling | **None.** No serial or Ethernet cables connected; routers powered, switches dark | Photo 2026-10-21 | Yes (from photo) |
+| Rack cabling | **None.** No serial or Ethernet cables connected; routers, 3750 and 2960 Plus powered; the two 2960s dark | Photo 2026-10-21, two independent readings | Yes (from photo) |
 | Cisco configurations now on the devices | Unknown: could be the SB/ISP/MG Lab 1 to 3 configs, the later 192.168.1.x / 192.168.2.0/28 work, a Brisbane/Cairns (BNE/CNS) build, or defaults | Config files; project memory; labels | No |
 | Routing SB to MG, VPN/OSPF, ACLs or zone firewall | Not testable until re-cabled | | No |
 | Which switch port the VM host uses; VLAN 90 membership | No host is cabled to any switch today (brief says Gi0/1; early config makes Gi0/1 a trunk). The recovered VMs were never bridged (NAT, then VMnet1) | Photo; .vmx | Yes (none today) |
@@ -384,15 +384,20 @@ cabling instructions can say "the 1941 labelled ISP, port S0/0/1" and be unambig
 | 2 | Cisco 1941 | rail tape `ISP` | EHWIC 0 = HWIC-2T (S0/0/0, S0/0/1); EHWIC 1 blank; GE0/0, GE0/1; console | Power cord only |
 | 3 | Cisco 1941 | rail tape `CNS`, marker `3` / `R2` | EHWIC 0 = HWIC-2T; GE0/0, GE0/1; console | Power cord only |
 | 4 | empty shelf | | | |
-| 5 | Catalyst 3750G PoE-24 | none (old owner's asset and IP stickers) | 24 x GE, 4 x SFP | None; no LEDs lit |
-| 6 | Catalyst 2960 Plus | marker `MG-S1`, sticker `5` | 24 x FE, 2 x SFP, 2 x GE | None |
-| 7 | Catalyst 2960 | tape `BNE S1` | 24 x FE, 2 x GE | None |
-| 8 (bottom) | Catalyst 2960 | tape `CNS S1` | 24 x FE, 2 x GE | None |
+| 5 | Catalyst 3750G PoE-24 | none (old owner's asset and IP stickers) | 24 x GE, 4 x SFP | None; SYST LED lit (powered) |
+| 6 | Catalyst 2960 Plus | marker `MG-S1`, sticker `5` | 24 x FE, 2 x SFP, 2 x GE | None; SYST LED lit (powered) |
+| 7 | Catalyst 2960 | tape `BNE S1` | 24 x FE, 2 x GE | None; no LEDs (probably unpowered) |
+| 8 (bottom) | Catalyst 2960 | tape `CNS S1` | 24 x FE, 2 x GE | None; no LEDs (probably unpowered) |
+
+Two independent readings of the photo (2026-10-21) agree with this table on every device, port and cable; the
+only additions were the switch LED states above and that the 1941s' `EHWIC 1` opening is double-width with two
+blanks.
 
 What this means:
 
 1. **The rack is not cabled.** No serial cables between the HWIC-2T cards, no Ethernet between routers and
-   switches, nothing into any switch port. The routers have power; the switches show no lit LEDs. The "existing
+   switches, nothing into any switch port. The routers, the 3750 and the 2960 Plus show power; the two 2960s
+   are dark (check their power cords before concluding anything about them). The "existing
    working lab network" in the brief does not exist in cabled form today. Routing, VLAN trunking and the host
    port cannot be tested until the topology is re-cabled, and that re-cabling is a physical change to record.
 2. **Any router can take any role.** All three have a two-port serial card, so any of them can be the ISP
