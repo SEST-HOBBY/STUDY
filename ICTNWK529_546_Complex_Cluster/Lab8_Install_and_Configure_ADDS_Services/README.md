@@ -34,6 +34,8 @@ inferences are labelled as such and every fact about our machines is marked unve
 | (wanted) `Fix_how to fix the SID when clone a Windows VM from a template.txt` | 01_supplied_reference | Teacher handout | Sysprep procedure for fresh clones only |
 | (wanted) `SB / ISP / MG / SB-S1 / MG-S1 complete CONFIG.txt` | 01_supplied_reference/cisco_configs | Student's Lab 1 to 3 configs | Early addressing (192.168.10.x). Reference only; never paste onto live devices |
 | `vm_inventory/SERVER_VM_FOR_LAB_8-9/` (`*.vmx`, `*.vmsd`, `*.vmxf`, `vmware.log`, `vmware-1.log`) | 02_student_work | Copied from the old VMware folder on 2026-10-21 | Text only, as received. The `.vmdk`, `.nvram` and `autoinst.flp` stay with the originals. Read in the report, Section A.11 |
+| `network/Lab8_device_configs_2026-10-22.txt` | 02_student_work | The configurations as pasted (passwords as placeholders) | SB, ISP, MG, SB-S1, MG-S1 in paste order with the checks after each block |
+| `network/rack_cabled_2026-10-21.jpg`, `network/pc_sb_spare_nic_green_2026-10-21.jpg` | 02_student_work | My photos | Rack cabled per the plan; the SB computer's add-in NIC (green lead) |
 | `network/rack_photo_2026-10-21.jpg` | 02_student_work | My photo of the lab rack | 2911, two 1941s (each with an HWIC-2T), 3750G, 2960 Plus, two 2960s; no cables connected; labels ignored. Read in the report, B.0 |
 | (wanted) `show running-config` and show output per Cisco device, redacted | 02_student_work/network | Live devices, read-only | Text only; passwords and keys replaced with `<redacted>` |
 | `screenshots/` | 02_student_work | My evidence screenshots | Suggested names `Lab8-01A-DC1-Promoted.png` ... `Lab8-10-Ubuntu-Realm.png` |

@@ -1,0 +1,371 @@
+! ============================================================================
+! Lab 8 network build - complete device configurations (revised 2026-10-22)
+! SB-S1 -> SB -> ISP -> MG -> MG-S1   |   OSPF area 0   |   two computers
+! ============================================================================
+! HOW TO USE
+!  1. Erase each device first (erase startup-config; switches also
+!     delete flash:vlan.dat; reload; answer no to save and no to setup).
+!  2. Replace every <placeholder> below with your own value BEFORE pasting
+!     (enable secret, console password, vty password). Keep them out of the repo.
+!  3. Paste order: SB, ISP, MG, SB-S1, MG-S1. One block per device, from
+!     "enable" to "write memory". Tera Term: Setup > Serial port > transmit
+!     delay 0 ms/char, 50 ms/line, then Edit > Paste<CR>.
+!  4. Lines beginning with "!" are comments; IOS ignores them.
+!  5. Run the CHECK lines at the end of each block. "Deferred" checks pass
+!     only after the named device is also configured.
+! Cabling this assumes:
+!   SB  Gi0/0  -> SB-S1 Gi0/2 (trunk)       SB  S0/0/0 (DTE) -> ISP S0/0/0 (DCE)
+!   MG  Gi0/1  -> MG-S1 Gi0/1 (access)      MG  S0/0/1 (DTE) -> ISP S0/0/1 (DCE)
+!   SB computer (DC1 host, green) -> SB-S1 Gi0/1 (VLAN 90)
+!   MG computer (DC2 host, yellow) -> MG-S1 Fa0/1 (VLAN 1)
+! ============================================================================
+
+
+! ============================================================================
+! 1. SB   (Cisco 2911, chassis tape BNE / R1)
+! ============================================================================
+enable
+configure terminal
+hostname SB
+no ip domain-lookup
+service password-encryption
+enable secret <enable-secret>
+banner motd # Lab 8 SB - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/0
+ description Trunk-to-SB-S1-Gi0/2
+ no ip address
+ no shutdown
+ exit
+interface GigabitEthernet0/0.20
+ description VLAN20-CS
+ encapsulation dot1Q 20
+ ip address 192.168.1.1 255.255.255.192
+ no shutdown
+ exit
+interface GigabitEthernet0/0.30
+ description VLAN30-Marketing
+ encapsulation dot1Q 30
+ ip address 192.168.1.65 255.255.255.192
+ no shutdown
+ exit
+interface GigabitEthernet0/0.90
+ description VLAN90-Servers
+ encapsulation dot1Q 90
+ ip address 192.168.2.1 255.255.255.240
+ no shutdown
+ exit
+interface Serial0/0/0
+ description WAN-to-ISP-S0/0/0
+ encapsulation hdlc
+ ip address 209.165.200.1 255.255.255.240
+ no shutdown
+ exit
+!
+router ospf 1
+ router-id 1.1.1.1
+ passive-interface default
+ no passive-interface Serial0/0/0
+ network 192.168.1.0 0.0.0.63 area 0
+ network 192.168.1.64 0.0.0.63 area 0
+ network 192.168.2.0 0.0.0.15 area 0
+ network 209.165.200.0 0.0.0.15 area 0
+ exit
+end
+write memory
+!
+! CHECK now:      show ip interface brief
+!                 -> Gi0/0 "unassigned" up/up; Gi0/0.20 .30 .90 up/up with their
+!                    addresses (up only once SB-S1 is cabled and powered);
+!                    Serial0/0/0 209.165.200.1 down/down until ISP is configured
+!                 show ip protocols   -> router-id 1.1.1.1, passive interfaces listed
+! CHECK deferred: after ISP:  show ip ospf neighbor  -> 2.2.2.2 FULL
+!                             ping 209.165.200.2     -> !!!!!
+!                 after MG:   show ip route          -> O 172.16.0.0/24 and
+!                                                       O 209.165.200.16/28 via 209.165.200.2
+!                             ping 172.16.0.1        -> !!!!!
+
+
+! ============================================================================
+! 2. ISP   (Cisco 1941, chassis tape ISP)  - both DCE cable ends are here
+! ============================================================================
+enable
+configure terminal
+hostname ISP
+no ip domain-lookup
+service password-encryption
+enable secret <enable-secret>
+banner motd # Lab 8 ISP - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface Serial0/0/0
+ description WAN-to-SB-S0/0/0
+ encapsulation hdlc
+ ip address 209.165.200.2 255.255.255.240
+ clock rate 64000
+ no shutdown
+ exit
+interface Serial0/0/1
+ description WAN-to-MG-S0/0/1
+ encapsulation hdlc
+ ip address 209.165.200.17 255.255.255.240
+ clock rate 64000
+ no shutdown
+ exit
+!
+router ospf 1
+ router-id 2.2.2.2
+ passive-interface default
+ no passive-interface Serial0/0/0
+ no passive-interface Serial0/0/1
+ network 209.165.200.0 0.0.0.15 area 0
+ network 209.165.200.16 0.0.0.15 area 0
+ exit
+end
+write memory
+!
+! CHECK now:      show controllers serial 0/0/0 | include DCE|DTE|cable  -> line begins DCE
+!                 show controllers serial 0/0/1 | include DCE|DTE|cable  -> line begins DCE
+!                 (a DTE line here = that cable is the wrong way round: swap its ends)
+!                 (clock rate refused with a DTE message = same thing)
+!                 show ip interface brief   -> Serial0/0/0 up/up; Serial0/0/1 up/up after MG
+!                 show ip ospf neighbor     -> 1.1.1.1 FULL now; 3.3.3.3 FULL after MG
+! CHECK deferred: after MG:  show ip ospf neighbor -> BOTH 1.1.1.1 and 3.3.3.3 FULL  (screenshot)
+!                            show ip route         -> O routes to 192.168.1.0/26, 192.168.1.64/26,
+!                                                     192.168.2.0/28, 172.16.0.0/24
+
+
+! ============================================================================
+! 3. MG   (Cisco 1941, chassis tape CNS / 3 / R2)
+! ============================================================================
+enable
+configure terminal
+hostname MG
+no ip domain-lookup
+service password-encryption
+enable secret <enable-secret>
+banner motd # Lab 8 MG - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/1
+ description LAN-to-MG-S1-Gi0/1
+ ip address 172.16.0.1 255.255.255.0
+ no shutdown
+ exit
+interface Serial0/0/1
+ description WAN-to-ISP-S0/0/1
+ encapsulation hdlc
+ ip address 209.165.200.18 255.255.255.240
+ no shutdown
+ exit
+!
+router ospf 1
+ router-id 3.3.3.3
+ passive-interface default
+ no passive-interface Serial0/0/1
+ network 172.16.0.0 0.0.0.255 area 0
+ network 209.165.200.16 0.0.0.15 area 0
+ exit
+end
+write memory
+!
+! CHECK now (SB and ISP exist, so all of these should pass):
+!                 show controllers serial 0/0/1 | include DCE|DTE|cable -> line begins DTE
+!                 show ip interface brief   -> Serial0/0/1 up/up; Gi0/1 up/up once MG-S1 is cabled and powered
+!                 show ip ospf neighbor     -> 2.2.2.2 FULL
+!                 show ip route             -> four O routes: 192.168.2.0/28, 192.168.1.0/26,
+!                                              192.168.1.64/26, 209.165.200.0/28
+!                 ping 209.165.200.17       -> !!!!!
+!                 ping 192.168.2.1          -> !!!!!   (routing across all three routers)
+! Then go back to ISP: show ip ospf neighbor -> both FULL  (screenshot for evidence)
+
+
+! ============================================================================
+! 4. SB-S1   (Catalyst 2960, chassis tape BNE S1)
+! ============================================================================
+enable
+configure terminal
+hostname SB-S1
+no ip domain-lookup
+service password-encryption
+enable secret <enable-secret>
+banner motd # Lab 8 SB-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+vlan 20
+ name CS
+ exit
+vlan 30
+ name Marketing
+ exit
+vlan 90
+ name Server
+ exit
+!
+interface range FastEthernet0/1 - 4
+ description VLAN20-CS-clients
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/5 - 8
+ description VLAN30-Marketing-clients
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/9 - 10
+ description VLAN90-Servers
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ no shutdown
+ exit
+interface GigabitEthernet0/1
+ description DC1-Host-VLAN90
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ no shutdown
+ exit
+interface GigabitEthernet0/2
+ description Trunk-to-SB-Gi0/0
+ switchport mode trunk
+ switchport trunk allowed vlan 20,30,90
+ switchport nonegotiate
+ no shutdown
+ exit
+!
+interface Vlan1
+ shutdown
+ exit
+interface Vlan90
+ description Management
+ ip address 192.168.2.14 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.1
+end
+write memory
+!
+! (spanning-tree portfast prints a warning about hubs and loops: expected on access ports)
+! CHECK (wait 30 s after the trunk comes up; spanning tree):
+!                 show vlan brief           -> 20: Fa0/1-4  30: Fa0/5-8  90: Fa0/9-10, Gi0/1
+!                                              (Gi0/2 is absent: it is a trunk)
+!                 show interfaces trunk     -> Gi0/2, mode on, 802.1q, VLANs 20,30,90  (screenshot)
+!                 show interfaces status    -> Gi0/1 connected vlan 90 once the SB computer is cabled
+!                 ping 192.168.2.1          -> !!!!!  (SVI + trunk + router sub-interface all agree)
+! Then on SB: show ip interface brief -> the three sub-interfaces now up/up
+
+
+! ============================================================================
+! 5. MG-S1   (Catalyst 2960, chassis tape CNS S1)
+! ============================================================================
+enable
+configure terminal
+hostname MG-S1
+no ip domain-lookup
+service password-encryption
+enable secret <enable-secret>
+banner motd # Lab 8 MG-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/1
+ description Uplink-to-MG-Gi0/1
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ no shutdown
+ exit
+interface FastEthernet0/1
+ description DC2-Host
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ no shutdown
+ exit
+!
+interface Vlan1
+ description Management
+ ip address 172.16.0.254 255.255.255.0
+ no shutdown
+ exit
+ip default-gateway 172.16.0.1
+end
+write memory
+!
+! CHECK:          show interfaces status    -> Fa0/1 and Gi0/1 connected, vlan 1
+!                 ping 172.16.0.1           -> !!!!!
+! Then on MG:     show ip interface brief   -> Gi0/1 up/up
+
+
+! ============================================================================
+! 6. FINAL CHECKS AND EVIDENCE (after all five devices)
+! ============================================================================
+! ISP:   show ip ospf neighbor         -> 1.1.1.1 and 3.3.3.3 FULL           (screenshot)
+! SB:    show ip route                 -> O 172.16.0.0/24                     (screenshot)
+!        ping 172.16.0.1               -> !!!!!
+! MG:    show ip route                 -> O 192.168.2.0/28 etc.               (screenshot)
+!        ping 192.168.2.1              -> !!!!!
+! SB-S1: show vlan brief ; show interfaces trunk                              (screenshots)
+! Every device: write memory ; terminal length 0 ; show running-config ;
+!               show ip interface brief     -> all into the Tera Term log
+! Later, with the VMs running: on SB-S1 and MG-S1
+!               show mac address-table dynamic ; show interfaces status
+!               (VM MACs start 00:0c:29 - proves which port each host is on)
+!
+! Computers, before any VM:
+!   SB computer lab NIC: 192.168.2.13 / 255.255.255.240 / gateway 192.168.2.1
+!   MG computer lab NIC: 172.16.0.253 / 255.255.255.0    / gateway 172.16.0.1
+!   each: ping its own gateway, then the far gateway. Set back to automatic afterwards.
+!   (Windows does not answer ping by default: PC-to-PC ping needs, as Administrator,
+!    Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)")
+! ============================================================================
