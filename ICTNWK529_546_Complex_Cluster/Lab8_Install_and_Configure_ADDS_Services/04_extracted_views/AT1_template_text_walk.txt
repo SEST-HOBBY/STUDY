@@ -1,0 +1,82 @@
+<p> AT1 Template
+<p> [RED]This template is created base[/RED][RED]d on the marking criteria of AT1 [/RED][RED]along with the assessment requirements. You are required to follow the instructions to attach the lab results as required below each Heading and remove all the red text instructions when you complete the portfolio. [/RED]
+<p> [RED]For the first attempt, please name your portfolio after the format of [/RED][RED]Firstname_Lastname[/RED][RED]_AT1[/RED][RED]_Attempt_1 and submit it to Connect.[/RED]
+<p> [RED]For the second attempt, please name your portfolio after the format of [/RED][RED]Firstname_Lastname[/RED][RED]_[/RED][RED]AT1[/RED][RED]_Attempt_2 and submit it to Connect[/RED]
+<p> [RED]
+[/RED]
+<p> Show interface s0/0/0 on the SB Router to verify the ppp encapsulation and take a screenshot and paste it below.
+   [IMAGE media/image1.png]
+<p> Show run on the SB Router and take a screenshot of the commands that configure interface s0/0/0 as ppp encapsulation and ppp authentication.
+   [IMAGE media/image2.png]
+<p> Show ip route on the SB Router to verify the OSPF routing information and take a screenshot and paste it below.
+   [IMAGE media/image3.png]
+<p> Display the NAT table by issuing the show ip nat translations command on the SB Router. Take a screenshot and paste it below.
+   [IMAGE media/image4.png]
+<ListParagraph> [RED]Briefly describe the following:[/RED]
+<ListParagraph> [RED]what are the steps to configure this firewall? [/RED]
+<ListParagraph> [RED]what are firewall applications?[/RED]
+<ListParagraph> Issue the show zone security command on both router SB and MG to demonstrate the zones are properly created, and the interfaces were correctly assigned. Take the screenshots from SB and MG then paste them below:
+   [IMAGE media/image5.png]
+<ListParagraph> Issue the show policy-map type inspect zone-pair command to demonstrate the zone-pairs, their policy-maps, the class-maps and match counters. Take the screenshot of the output from SB and paste it below:
+   [IMAGE media/image6.png]
+<p> Install a simple proxy server and configure proxy client settings on a Windows PC. Demonstrate the proxy services running with screenshots. [RED]Briefly describe [/RED][RED]what is proxy.[/RED]
+   [IMAGE media/image7.png]
+<ListParagraph> Display the routing table by issuing the show ip route command on router SB and the router MG.  Take the screenshots from SB and MG then paste them below:
+   [IMAGE media/image8.png]
+<ListParagraph> Take the screenshot for the tracert command results showing the pinging packet sent from SB PCs to MG PCs.
+   [IMAGE media/image9.png]
+<ListParagraph> Use the command show crypto isakmp sa to verify the peers between 209.165.200.1 and 209.165.200.18. Take a screenshot and pasted it to AT4 Part 2 template.
+   [IMAGE media/image10.png]
+   [IMAGE media/image11.png]
+<ListParagraph> Use the command show crypto ipsec sa to verify the number of packets encrypted by IPSec when traversing through the GRE tunnel. Take a screenshot and pasted it to AT4 Part 2 template.
+<ListParagraph> Use the command show interface tunnel 0 to verify  the tunnel protocol is using IPSEC/IP instead of GRE. . Take a screenshot and pasted it to AT4 Part 2 template.
+<ListParagraph> Use the command “show ip dhcp binding” on the router MG to demonstrate the IPs released to the MG PC. Take the screenshot and paste it below.
+<ListParagraph> Take a screenshot of the contents of /etc/dhcp/dhcpd.conf file on the SB Ubuntu DHCP server and paste it below.
+<ListParagraph> Take a screenshot of the contents of /etc/default/isc-dhcp-server file on the SB Ubuntu DHCP server and paste it below
+<ListParagraph> Screen shots of successful ip phone registration on the CMEs.
+<ListParagraph> Paste screenshots of the two load sharing domain controllers. You should name the controllers after the format as depicted below which should vary from person to person based on the student’s name:
+<ListParagraph> dc1.student1firstname.student2firstname
+<ListParagraph> dc2. student1firstname.student2firstname
+<p> [RED]Please briefly describe what is NTP?[/RED][RED] [/RED][RED]How does Stratum hierarchical system work for NTP?[/RED]
+<p> [RED]Please briefly describe hat is user authentication?[/RED]
+<p> [RED]Please briefly describe what are Active Directory services?[/RED]
+<p> The screenshot should be similar to the one attached below. Please remove the demonstrated screenshot when you submit this template.
+   [IMAGE media/image12.jpeg]
+<ListParagraph> Follow the tutorial video 8.2-Create Sites and Subnets to do sublab 8.2 and take a screenshot at the end and paste it here. The screenshot should be similar to the one attached below. Please remove the demonstrated screenshot when you submit this template.
+<p> [RED]Please briefly describe [/RED][RED]how ADDS Sites implement load balancing across DCs to share with the client AD requests.[/RED]
+   [IMAGE media/image13.png]
+<ListParagraph> Follow the tutorial video 8.3-Configure Domain Controller Replication between sites to do sublab 8.3. Take a screenshot similar to the following which demonstrates the subnets, sites, DCs, replication between SB & MG, and the domain name on the background. Remove the demonstrated example when you submit this template.
+   [IMAGE media/image14.png]
+<ListParagraph> Follow the tutorial video 8.4- Configure DNS Replication with Active Directory integrated Zone Replication to do sublab 8.4. Take screenshots similar to the following which displays the domain name on the background. Please remove the demonstrated screenshots at the end.
+   [IMAGE media/image15.png]
+   [IMAGE media/image16.png]
+<p> Screenshot of demonstrating that SB-DNS is successfully synchronized to DC1 needs to be presented as well.
+   [IMAGE media/image17.jpeg]
+<ListParagraph> Follow the tutorial video 8.5 Install and configure DFS to do sublab 8.5. Take screenshots similar to the following which displays the domain name on the background. Please remove the demonstrated screenshots at the end.
+   [IMAGE media/image18.png]
+<ListParagraph> Follow the tutorial video 8.6_Install and configure FSRM. Take screenshots similar to the following which displays the domain name on the background. Please remove the demonstrated screenshots at the end.
+   [IMAGE media/image19.png]
+   [IMAGE media/image20.png]
+<ListParagraph> Follow the tutorial video 8.7 - Deploy Desktop Management via GPO to finish this subtask. Take screenshot at the end of the lab which displays the domain name on the background.
+<ListParagraph> Follow the tutorial video 8.8 - Configure Anti-Virus Software Deployment via GPO to finish this subtask. Take screenshots similar to the following which displays the domain name on the background. Please remove the demonstrated screenshots at the end.
+   [IMAGE media/image21.png]
+   [IMAGE media/image22.png]
+<ListParagraph> Follow the tutorial video 8.9_Install and configure WSUS. Take screenshots similar to the following which displays the domain name on the background. Please remove the demonstrated screenshots at the end. Take screenshots to demonstrate that the IIS server role has been installed on the WSUS server and it has been successfully synched to Microsoft website. Selected update patches have been downloaded successfully.
+<p> [RED]Briefly describe what is web application[/RED][RED]. [/RED]
+   [IMAGE media/image23.png]
+   [IMAGE media/image24.png]
+<ListParagraph> Follow the tutorial video 8.10_ Joining a Ubunutu to AD Domain. Take screenshots similar to the following which displays the domain name on the terminal. Please remove the demonstrated screenshots at the end.
+   [IMAGE media/image25.png]
+<p> Follow the PRTG tutorial video and refer to the teaching lab manual on Connect to finish the lab. Obtain sign-off from the teacher and attach the lab screenshots below.
+<p> See the details that are highlighted with the red tangle. They should demonstrate your domain name on the background, devices under local probe should have the sensors of both snmp traffic and syslog, and devices under remote probe should have both snmp traffic sensor and syslog sensor.
+   [IMAGE media/image26.png]
+<p> Follow the tutorial video for Security Onion to do the lab. Take screenshots similar to the following and replace the demonstrated ones when you get marked off from the teacher.
+   [IMAGE media/image27.png]
+   [IMAGE media/image28.png]
+<ListParagraph> Write a troubleshooting report about the following aspsects:
+<ListParagraph> [RED]Describe network symptoms came across to you.[/RED]
+<ListParagraph> [RED]Describe what troubleshooting tools and techniques, including any network diagnostic utilities you use to find out what is the cause to the network issues.[/RED]
+<ListParagraph> [RED]Describe how you resolve the issues[/RED]
+<p> Install a simple FTP server and demonstrate the FTP services running with screenshots.
+<p> [RED]Briefly describe what is FTP protocol.[/RED]
+<p> [RED]Please attach your email server screenshots for Lab 1[/RED][RED]2[/RED][RED].[/RED]

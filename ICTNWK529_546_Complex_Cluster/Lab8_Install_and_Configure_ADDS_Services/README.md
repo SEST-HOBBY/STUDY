@@ -31,7 +31,8 @@ inferences are labelled as such and every fact about our machines is marked unve
 | `vm_inventory/search_*.png`, `vm_inventory/workstation_library_2026-10-21.png` | 02_student_work | My screenshots | `*.vmx` and `*.vmdk` search of the 1 TB E: drive; Workstation library on the current PC |
 | `network/before_erase/` | 02_student_work | Console logs captured before erasing each device | Passwords redacted |
 | (wanted) `Week 7 Assess Lab 8 Install and Configure ADDS Services.docx` | 00_assessment_documents | TAFE | The written Lab 8 brief. Not yet in the repo |
-| (wanted) `ICTNWK529_ICTNWK546_AT1 WORKING ON.docx` | 02_student_work | Student's working portfolio (template with teacher demo screenshots) | Not yet in the repo. Keep the filename until the teacher confirms the label |
+| `ICTNWK529_ICTNWK546_AT1 WORKING ON.docx` | 00_assessment_documents | TAFE portfolio template with the teacher's demonstration screenshots (received 2026-10-22) | Never edit here; the submission copy is made separately. Text walk in `04_extracted_views/AT1_template_text_walk.txt`; Lab 8 demo images in `04_extracted_views/AT1_template_Lab8_teacher_examples/` |
+| `Lab8_screenshot_shot_list_2026-10-22.md` | 05_analysis | My shot list, drafted with AI assistance from the template | Every screenshot each sub-lab needs, its composition, file name, and the written answers; what the 8.8 to 8.10 demos reveal |
 | (wanted) `Fix_how to fix the SID when clone a Windows VM from a template.txt` | 01_supplied_reference | Teacher handout | Sysprep procedure for fresh clones only |
 | (wanted) `SB / ISP / MG / SB-S1 / MG-S1 complete CONFIG.txt` | 01_supplied_reference/cisco_configs | Student's Lab 1 to 3 configs | Early addressing (192.168.10.x). Reference only; never paste onto live devices |
 | `vm_inventory/SERVER_VM_FOR_LAB_8-9/` (`*.vmx`, `*.vmsd`, `*.vmxf`, `vmware.log`, `vmware-1.log`) | 02_student_work | Copied from the old VMware folder on 2026-10-21 | Text only, as received. The `.vmdk`, `.nvram` and `autoinst.flp` stay with the originals. Read in the report, Section A.11 |
@@ -80,4 +81,6 @@ memberships (C:\Share1 SB-DNS-1, C:\Share2 SB-FS2, replicated folder Share1); te
 8.6: QT-1 100 KB soft 85%; quota on C:\share4; Event 12325; FG-1 (*.txt, exclude hello.txt); file screen on
 C:\share4; test.txt blocked, hello.txt allowed; Event 8215; Quota Usage report (SB-FS2, C:\share4).
 8.7: GPO, wallpaper UNC, restriction policy, client desktop, gpresult.
-8.8 to 8.10: blocked until the tutorials or teacher instructions are available.
+8.8 to 8.10: requirements now largely known from the template's demonstration images (Avast wrapped as MSI,
+Assigned by GPO; WSUS on SB-FS2 with the Windows Update GPO; realmd/SSSD join with `realm list`); details in
+`05_analysis/Lab8_screenshot_shot_list_2026-10-22.md`.
