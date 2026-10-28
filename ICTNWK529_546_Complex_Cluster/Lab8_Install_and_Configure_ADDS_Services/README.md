@@ -8,6 +8,15 @@ Source priority: (1) current teacher directions and marking requirements, (2) th
 (3) portfolio evidence requirements, (4) the tutorial videos (8.1 to 8.6 reviewed; 8.7 to 8.10 not seen),
 (5) the existing working lab configuration.
 
+## Status (2026-10-28): paused, moving to Lab 9
+
+Last confirmed state (2026-10-22): rack cabled per the plan (photo), console via the Networking VM, the
+five device configurations issued (`02_student_work/network/Lab8_device_configs_2026-10-22.txt`), DC1 VM
+being created with the Workstation wizard (scripts and cmd are blocked on the lab PC). NOT yet received:
+the ISP `show ip ospf neighbor` output, the host-to-gateway pings, confirmation that DC1 reached the Windows
+desktop, the teacher's ruling on Server 2019 vs 2012 R2, and the agreed domain name. Resume at the
+walkthroughs' first unmet check.
+
 ## Status (2026-10-15)
 
 Old VMware files have been found and their configuration files and logs read (2026-10-21): `DC2.Eric.Roly` is a
