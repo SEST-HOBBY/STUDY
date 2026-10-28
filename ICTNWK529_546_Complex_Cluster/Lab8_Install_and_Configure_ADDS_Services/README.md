@@ -8,7 +8,14 @@ Source priority: (1) current teacher directions and marking requirements, (2) th
 (3) portfolio evidence requirements, (4) the tutorial videos (8.1 to 8.6 reviewed; 8.7 to 8.10 not seen),
 (5) the existing working lab configuration.
 
-## Status (2026-10-28): paused, moving to Lab 9
+## Status (2026-10-28): closed by the student as finished
+
+The student has assembled the Lab 8 evidence screenshots and treats Lab 8 as finished. Those screenshots are
+not in this repo (`02_student_work/screenshots/` is empty); the physical state of the rack, the PCs and the VMs
+at the end of Lab 8 is not verified here and may differ from the evidence. Anything in Lab 9 that depends on
+Lab 8 (the SB/ISP/MG network, the two PCs, DC1/DC2, the domain) is therefore re-checked at the start of Lab 9
+(see `../Lab9/05_analysis/Rollover_state_check.md`), not assumed.
+
 
 Last confirmed state (2026-10-22): rack cabled per the plan (photo), console via the Networking VM, the
 five device configurations issued (`02_student_work/network/Lab8_device_configs_2026-10-22.txt`), DC1 VM
