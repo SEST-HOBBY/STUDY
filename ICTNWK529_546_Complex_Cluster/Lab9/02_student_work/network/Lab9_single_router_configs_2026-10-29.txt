@@ -30,7 +30,7 @@
 
 
 ! ============================================================================
-! 1. ROUTER  (Cisco 2911)
+! 1. ROUTER  (Cisco 2911 or 1941; built 2026-10-29 on a 1941 as hostname SB-MG)
 ! ============================================================================
 enable
 configure terminal
@@ -77,10 +77,11 @@ interface GigabitEthernet0/1
  ip address 172.16.0.1 255.255.255.0
  no shutdown
  exit
-interface GigabitEthernet0/2
- description spare
- shutdown
- exit
+! (2911 only: a 1941 has no Gi0/2; skip these three lines on a 1941 or the paste drops out of config mode)
+! interface GigabitEthernet0/2
+!  description spare
+!  shutdown
+!  exit
 !
 ntp master 3
 snmp-server community <snmp-ro-community> RO
@@ -90,7 +91,7 @@ logging host 172.16.0.2
 logging trap informational
 logging source-interface GigabitEthernet0/1
 end
-clock set <HH:MM:SS> <DD> <Month> 2026
+clock set <HH:MM:SS> <DD> <Month> 2026     (real current time, 24-hour, e.g. clock set 14:30:00 29 Oct 2026)
 write memory
 !
 ! CHECK: show ip interface brief  -> Gi0/0 up/up unassigned; Gi0/0.20 .30 .90 up/up; Gi0/1 172.16.0.1 up/up
