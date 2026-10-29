@@ -25,7 +25,9 @@ SNMP read-only on the Cisco devices, syslog from the devices to the probe/core, 
 IPsec VTI tunnel SB-MG is mentioned as possibly required. The DC2 VM was rebuilt on Workstation 17.6.4 (2 vCPU,
 4 GB, 60 GB, e1000e) and was created with a host-only NIC, which must be changed to Bridged. The SB side is
 being operated by the workmate at the same time: nothing on SB is erased or reloaded; SB gets additions only.
-Device configurations: `02_student_work/network/Lab9_device_configs_2026-10-29.txt`.
+Device configurations: `02_student_work/network/Lab9_device_configs_2026-10-29.txt` (three-router SB-ISP-MG
+version) and `02_student_work/network/Lab9_single_router_configs_2026-10-29.txt` (one 2911 serving both sites,
+chosen 2026-10-29: Gi0/0 trunk to SB-S1, Gi0/1 to MG-S1, no serials, no OSPF).
 
 ## Waiting on
 

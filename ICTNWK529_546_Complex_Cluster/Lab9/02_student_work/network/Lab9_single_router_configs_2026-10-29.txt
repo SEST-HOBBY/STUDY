@@ -1,0 +1,261 @@
+! ============================================================================
+! Lab 9 - SINGLE ROUTER topology: one Cisco 2911 + SB-S1 + MG-S1 (2026-10-29)
+! Both sites hang off the same router. No serial links, no ISP, no OSPF needed:
+! the router has both networks directly connected. Server and VM addresses are
+! unchanged from Lab 8, so DC1 / DC2 settings do not change.
+! ============================================================================
+! CABLING (exact ports)
+!   Router 2911 (tape BNE / R1)
+!     GE 0/0  -> SB-S1 Gi0/2        trunk, VLANs 20/30/90     (GE 0/0 = top port of the
+!                                     stacked pair next to CONSOLE; GE 0/1 is below it)
+!     GE 0/1  -> MG-S1 Gi0/1        access, 172.16.0.0/24
+!     GE 0/2  -> spare              (above the two USB-A sockets)
+!     Serial 0/0/0, 0/0/1 -> unused (leave cables off)
+!   SB-S1 (2960, tape BNE S1)
+!     Gi0/1   <- SB PC (DC1 host)   access VLAN 90    (Gi0/1 = LEFT of the two gigabit uplinks at the right end)
+!     Gi0/2   <- router GE 0/0      trunk             (Gi0/2 = RIGHT uplink)
+!     Fa0/1-4  VLAN 20 CS      Fa0/5-8 VLAN 30 Marketing     Fa0/9-10 VLAN 90 Server (spare server ports)
+!   MG-S1 (2960, tape CNS S1)
+!     Gi0/1   <- router GE 0/1      access VLAN 1     (LEFT uplink)
+!     Fa0/1   <- MG PC (DC2 host)   access VLAN 1     (top-left port of the 24 block)
+!     Fa0/2   <- spare for a second MG host
+! ADDRESSES
+!   Router Gi0/0.20 192.168.1.1/26   Gi0/0.30 192.168.1.65/26   Gi0/0.90 192.168.2.1/28   Gi0/1 172.16.0.1/24
+!   SB-S1 Vlan90 192.168.2.14/28     MG-S1 Vlan1 172.16.0.3/24
+!   DC1 192.168.2.2/28 gw .1         DC2 172.16.0.2/24 gw .1
+!   SB PC LAB NIC 192.168.2.13/28 (no gateway if the PC also has a TAFE NIC)   MG PC 172.16.0.253/24 gw .1
+! RULES: replace every <placeholder>; same SNMP community on all three devices and in PRTG;
+!        "!" lines are comments. Paste order: router, SB-S1, MG-S1.
+! ============================================================================
+
+
+! ============================================================================
+! 1. ROUTER  (Cisco 2911)
+! ============================================================================
+enable
+configure terminal
+hostname SB-MG
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 router - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/0
+ description Trunk-to-SB-S1-Gi0/2
+ no ip address
+ no shutdown
+ exit
+interface GigabitEthernet0/0.20
+ description VLAN20-CS
+ encapsulation dot1Q 20
+ ip address 192.168.1.1 255.255.255.192
+ exit
+interface GigabitEthernet0/0.30
+ description VLAN30-Marketing
+ encapsulation dot1Q 30
+ ip address 192.168.1.65 255.255.255.192
+ exit
+interface GigabitEthernet0/0.90
+ description VLAN90-Servers-SB-site
+ encapsulation dot1Q 90
+ ip address 192.168.2.1 255.255.255.240
+ exit
+interface GigabitEthernet0/1
+ description MG-site-to-MG-S1-Gi0/1
+ ip address 172.16.0.1 255.255.255.0
+ no shutdown
+ exit
+interface GigabitEthernet0/2
+ description spare
+ shutdown
+ exit
+!
+ntp master 3
+snmp-server community <snmp-ro-community> RO
+snmp-server location SB-MG-rack
+snmp-server contact <student names>
+logging host 172.16.0.2
+logging trap informational
+logging source-interface GigabitEthernet0/1
+end
+clock set <HH:MM:SS> <DD> <Month> 2026
+write memory
+!
+! CHECK: show ip interface brief  -> Gi0/0 up/up unassigned; Gi0/0.20 .30 .90 up/up; Gi0/1 172.16.0.1 up/up
+!        show ip route            -> C 192.168.1.0/26, 192.168.1.64/26, 192.168.2.0/28, 172.16.0.0/24 (all "C"onnected)
+!        ping 192.168.2.2 ; ping 172.16.0.2      (after the DCs are up and allow ping)
+!        show ntp status          -> stratum 3 ; show clock -> correct time
+! (Optional, if a client on VLAN 20/30 should get DHCP: the pools from the Lab 8 build doc, unchanged.)
+
+
+! ============================================================================
+! 2. SB-S1  (Catalyst 2960)
+! ============================================================================
+enable
+configure terminal
+hostname SB-S1
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 SB-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+vlan 20
+ name CS
+ exit
+vlan 30
+ name Marketing
+ exit
+vlan 90
+ name Server
+ exit
+interface range FastEthernet0/1 - 4
+ description VLAN20-CS
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/5 - 8
+ description VLAN30-Marketing
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/9 - 10
+ description VLAN90-Servers
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ no shutdown
+ exit
+interface GigabitEthernet0/1
+ description SB-PC-DC1-host-VLAN90
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ no shutdown
+ exit
+interface GigabitEthernet0/2
+ description Trunk-to-router-Gi0/0
+ switchport mode trunk
+ switchport trunk allowed vlan 20,30,90
+ switchport nonegotiate
+ no shutdown
+ exit
+interface Vlan1
+ shutdown
+ exit
+interface Vlan90
+ description Management
+ ip address 192.168.2.14 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.1
+!
+snmp-server community <snmp-ro-community> RO
+snmp-server location SB-site
+snmp-server contact <student names>
+ntp server 192.168.2.1
+logging host 172.16.0.2
+logging trap informational
+end
+write memory
+!
+! CHECK (wait 30 s after the trunk comes up):
+!        show vlan brief ; show interfaces trunk (Gi0/2, 802.1q, 20,30,90) ; show interfaces status
+!        ping 192.168.2.1 ; ping 172.16.0.1   (second one proves routing through the router)
+
+
+! ============================================================================
+! 3. MG-S1  (Catalyst 2960)
+! ============================================================================
+enable
+configure terminal
+hostname MG-S1
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 MG-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/1
+ description To-router-Gi0/1
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/1 - 2
+ description MG-PC-DC2-host
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ no shutdown
+ exit
+interface Vlan1
+ description Management
+ ip address 172.16.0.3 255.255.255.0
+ no shutdown
+ exit
+ip default-gateway 172.16.0.1
+!
+snmp-server community <snmp-ro-community> RO
+snmp-server location MG-site
+snmp-server contact <student names>
+ntp server 172.16.0.1
+logging host 172.16.0.2
+logging trap informational
+end
+write memory
+!
+! CHECK: show interfaces status -> Fa0/1 and Gi0/1 connected, vlan 1
+!        ping 172.16.0.1 ; ping 192.168.2.1 ; ping 192.168.2.14
+
+
+! ============================================================================
+! 4. END-TO-END (from the hosts and VMs)
+! ============================================================================
+! SB PC (192.168.2.13):  ping 192.168.2.1 ; ping 172.16.0.1 ; ping 172.16.0.253
+! MG PC (172.16.0.253):  ping 172.16.0.1 ; ping 192.168.2.1 ; ping 192.168.2.13
+! DC1:  ping 172.16.0.2    DC2: ping 192.168.2.2 ; nslookup dc1.<domain>
+! tracert -d from DC1 to 172.16.0.2 shows ONE hop (192.168.2.1) then 172.16.0.2.
+! Windows hosts/VMs answer ping only after:
+!   Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)"
+! Evidence: router show ip route ; SB-S1 show interfaces trunk ; both switches
+!   show mac address-table dynamic (VM MACs 00:0c:29) ; the pings above ; rack photo.
