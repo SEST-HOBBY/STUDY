@@ -1,0 +1,367 @@
+! ============================================================================
+! Lab 9 network configurations (revised 2026-10-29) - MG router, MG-S1, SB-S1,
+! plus the ADDITIONS the SB router and ISP need so that NTP, SNMP and syslog work.
+! Based on the Lab 8 build (same addressing, OSPF area 0, HDLC serials) with the
+! monitoring items from the Lab 9 notes: SNMP read-only, syslog to the PRTG
+! probe, NTP from the SB router. IPsec tunnel is in section 6, OPTIONAL.
+! ============================================================================
+! RULES
+!  - These blocks are safe to paste OVER the Lab 8 configuration: same addresses,
+!    same interfaces. No erase, no reload. (Only the MG serial encapsulation must
+!    stay HDLC to match the ISP; see MG block.)
+!  - Replace every <placeholder> before pasting. Use the SAME SNMP community on
+!    every device and in PRTG. Keep passwords out of the repo.
+!  - Order: MG router, MG-S1, then (with the workmate) SB additions, SB-S1, ISP.
+!  - Lines starting with "!" are comments; IOS ignores them.
+! Addresses
+!   SB router  Gi0/0.90 192.168.2.1/28   S0/0/0 209.165.200.1/28     NTP master
+!   ISP        S0/0/0 209.165.200.2/28   S0/0/1 209.165.200.17/28
+!   MG router  Gi0/1 172.16.0.1/24       S0/0/1 209.165.200.18/28
+!   SB-S1      Vlan90 192.168.2.14/28    MG-S1  Vlan1 172.16.0.3/24
+!   DC1 192.168.2.2   DC2 172.16.0.2 (PRTG remote probe, syslog target for MG side)
+!   SB-side syslog target = the PRTG core server's address (<prtg-sb-ip>)
+! ============================================================================
+
+
+! ============================================================================
+! 1. MG router  (Cisco 1941, chassis tape CNS / R2)
+! ============================================================================
+enable
+configure terminal
+hostname MG
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 MG - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/1
+ description MG-LAN-to-MG-S1-Gi0/1
+ ip address 172.16.0.1 255.255.255.0
+ no shutdown
+ exit
+interface Serial0/0/1
+ description WAN-to-ISP-S0/0/1
+ encapsulation hdlc
+ ip address 209.165.200.18 255.255.255.240
+ no shutdown
+ exit
+!
+router ospf 1
+ router-id 3.3.3.3
+ passive-interface default
+ no passive-interface Serial0/0/1
+ network 172.16.0.0 0.0.0.255 area 0
+ network 209.165.200.16 0.0.0.15 area 0
+ exit
+!
+snmp-server community <snmp-ro-community> RO
+snmp-server location MG-Site
+snmp-server contact <student names>
+ntp server 209.165.200.1
+logging host 172.16.0.2
+logging trap informational
+logging source-interface GigabitEthernet0/1
+end
+write memory
+!
+! CHECK: show ip interface brief        -> Gi0/1 172.16.0.1 up/up ; S0/0/1 209.165.200.18 up/up
+!        show ip ospf neighbor          -> 2.2.2.2 FULL
+!        show ip route                  -> O 192.168.2.0/28, 192.168.1.0/26, 192.168.1.64/26, 209.165.200.0/28
+!        ping 192.168.2.1 ; ping 172.16.0.2
+!        show ntp associations          -> 209.165.200.1 with * (synced) once SB has ntp master; takes 5-10 min
+!        show logging                   -> "Logging to 172.16.0.2" listed
+! (ChatGPT's "encapsulation ppp" is NOT used: the ISP side is HDLC and a mismatch
+!  takes the serial link down. If the brief wants PPP, change BOTH ends together.)
+
+
+! ============================================================================
+! 2. MG-S1  (Catalyst 2960, chassis tape CNS S1)
+! ============================================================================
+enable
+configure terminal
+hostname MG-S1
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 MG-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/1
+ description TO-MG-ROUTER-Gi0/1
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ no shutdown
+ exit
+interface FastEthernet0/1
+ description TO-MG-VM-HOST-DC2
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ no shutdown
+ exit
+interface Vlan1
+ description MG-S1-MANAGEMENT
+ ip address 172.16.0.3 255.255.255.0
+ no shutdown
+ exit
+ip default-gateway 172.16.0.1
+!
+snmp-server community <snmp-ro-community> RO
+snmp-server location MG-Site
+snmp-server contact <student names>
+ntp server 209.165.200.1
+logging host 172.16.0.2
+logging trap informational
+end
+write memory
+!
+! CHECK: show interfaces status  -> Fa0/1 and Gi0/1 connected, vlan 1
+!        ping 172.16.0.1 ; ping 172.16.0.2
+!        show ntp associations   -> synced after SB has ntp master
+
+
+! ============================================================================
+! 3. SB router ADDITIONS  (Cisco 2911, live on the workmate's side: paste ONLY this)
+! ============================================================================
+enable
+clock set <HH:MM:SS> <DD> <Month> 2026
+configure terminal
+service timestamps log datetime msec
+clock timezone AEST 10
+ntp master 3
+snmp-server community <snmp-ro-community> RO
+snmp-server location SB-Site
+snmp-server contact <student names>
+logging host <prtg-sb-ip>
+logging trap informational
+logging source-interface GigabitEthernet0/0.90
+end
+write memory
+!
+! CHECK: show clock              -> correct local time (ntp master serves this clock)
+!        show ntp status         -> "Clock is synchronized, stratum 3"
+!        show logging            -> Logging to <prtg-sb-ip>
+! DC1 then takes time from the router (walkthrough note): on DC1 as Administrator
+!   w32tm /config /manualpeerlist:192.168.2.1 /syncfromflags:manual /reliable:yes /update
+!   w32tm /resync ; w32tm /query /status   -> stratum 4 ; DC2 shows stratum 5
+
+
+! ============================================================================
+! 4. SB-S1  (Catalyst 2960, chassis tape BNE S1; VLAN names as the brief: CS, Marketing, Server)
+! ============================================================================
+enable
+configure terminal
+hostname SB-S1
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 SB-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exec-timeout 30 0
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+vlan 20
+ name CS
+ exit
+vlan 30
+ name Marketing
+ exit
+vlan 90
+ name Server
+ exit
+interface range FastEthernet0/1 - 4
+ description VLAN20-CS
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/5 - 8
+ description VLAN30-Marketing
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range FastEthernet0/9 - 10
+ description VLAN90-Servers
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ no shutdown
+ exit
+interface GigabitEthernet0/1
+ description TO-SB-VM-HOST-DC1-VLAN90
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ no shutdown
+ exit
+interface GigabitEthernet0/2
+ description TRUNK-TO-SB-Gi0/0
+ switchport mode trunk
+ switchport trunk allowed vlan 20,30,90
+ switchport nonegotiate
+ no shutdown
+ exit
+interface Vlan1
+ shutdown
+ exit
+interface Vlan90
+ description SB-S1-MANAGEMENT
+ ip address 192.168.2.14 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.1
+!
+snmp-server community <snmp-ro-community> RO
+snmp-server location SB-Site
+snmp-server contact <student names>
+ntp server 192.168.2.1
+logging host <prtg-sb-ip>
+logging trap informational
+end
+write memory
+!
+! CHECK: show vlan brief ; show interfaces trunk ; ping 192.168.2.1 ; show ntp associations
+
+
+! ============================================================================
+! 5. ISP ADDITIONS  (Cisco 1941; only if PRTG is to monitor the ISP too)
+! ============================================================================
+enable
+configure terminal
+service timestamps log datetime msec
+clock timezone AEST 10
+ntp server 209.165.200.1
+snmp-server community <snmp-ro-community> RO
+snmp-server location ISP
+end
+write memory
+
+
+! ============================================================================
+! 6. OPTIONAL: IPsec VTI tunnel SB <-> MG  (ONLY if the Lab 9 brief requires a VPN;
+!    needs the securityk9 licence on both routers: "show license" must list
+!    securityk9 as active, otherwise "crypto" commands are rejected)
+! ============================================================================
+! --- MG side ---
+! configure terminal
+! ip route 209.165.200.1 255.255.255.255 209.165.200.17
+! crypto isakmp policy 10
+!  encryption aes 256
+!  hash sha256
+!  authentication pre-share
+!  group 14
+!  lifetime 3600
+!  exit
+! crypto isakmp key <vpn-preshared-key> address 209.165.200.1
+! crypto ipsec transform-set TS50 esp-aes 256 esp-sha256-hmac
+!  mode tunnel
+!  exit
+! crypto ipsec profile CProfile
+!  set transform-set TS50
+!  exit
+! interface Tunnel0
+!  description IPSEC-VTI-to-SB
+!  ip address 172.16.12.2 255.255.255.252
+!  ip ospf cost 10
+!  tunnel source Serial0/0/1
+!  tunnel destination 209.165.200.1
+!  tunnel mode ipsec ipv4
+!  tunnel protection ipsec profile CProfile
+!  no shutdown
+!  exit
+! router ospf 1
+!  no passive-interface Tunnel0
+!  network 172.16.12.0 0.0.0.3 area 0
+!  exit
+! end
+! write memory
+! --- SB side (mirror; without it the tunnel never comes up) ---
+! configure terminal
+! ip route 209.165.200.18 255.255.255.255 209.165.200.2
+! crypto isakmp policy 10
+!  encryption aes 256
+!  hash sha256
+!  authentication pre-share
+!  group 14
+!  lifetime 3600
+!  exit
+! crypto isakmp key <vpn-preshared-key> address 209.165.200.18
+! crypto ipsec transform-set TS50 esp-aes 256 esp-sha256-hmac
+!  mode tunnel
+!  exit
+! crypto ipsec profile CProfile
+!  set transform-set TS50
+!  exit
+! interface Tunnel0
+!  description IPSEC-VTI-to-MG
+!  ip address 172.16.12.1 255.255.255.252
+!  ip ospf cost 10
+!  tunnel source Serial0/0/0
+!  tunnel destination 209.165.200.18
+!  tunnel mode ipsec ipv4
+!  tunnel protection ipsec profile CProfile
+!  no shutdown
+!  exit
+! router ospf 1
+!  no passive-interface Tunnel0
+!  network 172.16.12.0 0.0.0.3 area 0
+!  exit
+! end
+! write memory
+! CHECK (both): show crypto isakmp sa -> QM_IDLE ; show crypto ipsec sa -> encaps/decaps rising ;
+!               show interfaces tunnel 0 -> up/up ; show ip route -> site routes now via Tunnel0 (cost 10)
+! The /32 static routes keep each tunnel endpoint reachable via the serial path so the
+! tunnel cannot try to route itself through itself (recursive routing).
+
+
+! ============================================================================
+! 7. HOST AND VM ADDRESSES
+! ============================================================================
+! Server VMs (static, as Lab 8):
+!   DC1  192.168.2.2 /28  gw 192.168.2.1  DNS 192.168.2.2, alt 127.0.0.1
+!   DC2  172.16.0.2  /24  gw 172.16.0.1   DNS 172.16.0.2 (after promotion), alt 192.168.2.2
+!   SB-DNS-2 192.168.2.4 /28, SB-FS2 192.168.2.5 /28 (if built); .3 left free; .14 is SB-S1
+! Physical computers (the VMware hosts). Bridging needs NO address on the host NIC,
+! so give one only to reach the lab from the host itself (PRTG, pings, evidence):
+!   SB PC (two NICs): LAB NIC 192.168.2.13 /28, DNS 192.168.2.2, gateway LEFT EMPTY
+!       (the TAFE NIC keeps the default route and the internet). To reach the MG
+!       side from the host, Advanced TCP/IP settings is not enough; use the VMs,
+!       or set gateway 192.168.2.1 with Advanced > Automatic metric OFF > metric 500.
+!   MG PC (one NIC): 172.16.0.253 /24, gateway 172.16.0.1, DNS 192.168.2.2.
+! Never give a host .2 (DC1/DC2), .1 (gateways), .3/.14 (switch SVIs).

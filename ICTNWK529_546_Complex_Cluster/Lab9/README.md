@@ -18,6 +18,15 @@ Lab 9 is expected to build on what Labs 1 to 8 left behind. What that is, as rec
 Before any Lab 9 step that relies on one of these, run the matching check in `05_analysis/Rollover_state_check.md`
 and record the result there.
 
+## Known so far (2026-10-29, from the student's ChatGPT notes, not from the brief)
+
+Lab 9 appears to be network monitoring with PRTG: a PRTG core on the SB side, a remote probe on DC2 at MG,
+SNMP read-only on the Cisco devices, syslog from the devices to the probe/core, NTP from the SB router; an
+IPsec VTI tunnel SB-MG is mentioned as possibly required. The DC2 VM was rebuilt on Workstation 17.6.4 (2 vCPU,
+4 GB, 60 GB, e1000e) and was created with a host-only NIC, which must be changed to Bridged. The SB side is
+being operated by the workmate at the same time: nothing on SB is erased or reloaded; SB gets additions only.
+Device configurations: `02_student_work/network/Lab9_device_configs_2026-10-29.txt`.
+
 ## Waiting on
 
 1. The written Lab 9 brief and its evidence template (into `00_assessment_documents/`).
