@@ -2,7 +2,7 @@
 !   SB side (classmate): SB router 192.168.0.1 (NTP master), DC1 192.168.0.2, PRTG core 192.168.0.3, SB-S1 .254
 !   MG side (you):       MG router 172.16.0.1, DC2 172.16.0.2 (= remote probe), MG-S1 .254
 !   WAN: SB S0/0/0 209.165.200.1 - ISP S0/0/0 .2 ; ISP S0/0/1 .17 - MG S0/0/1 .18 ; tunnel 10.10.10.1 / .2
-! Replace: <enable-secret> <console-password> <vty-password> <snmp-community> <student names> <vpn-psk>
+! Replace: class cisco cisco ciscolab Student cisco123
 ! Crypto needs securityk9 on SB and MG (show license | include securityk9).
 ! Order: ISP, SB, MG, SB-S1, MG-S1.
 
@@ -12,14 +12,14 @@ enable
 configure terminal
 hostname ISP
 no ip domain-lookup
-enable secret <enable-secret>
+enable secret class
 line console 0
- password <console-password>
+ password cisco
  login
  logging synchronous
  exit
 line vty 0 15
- password <vty-password>
+ password cisco
  login
  exit
 interface Serial0/0/0
@@ -38,19 +38,19 @@ write memory
 
 ! ===== SB (classmate's router: NTP master, SNMP + syslog to PRTG 192.168.0.3) =====
 enable
-clock set <HH:MM:SS> <DD> <Month> 2026
+clock set 10:00:00 4 Nov 2026
 configure terminal
 hostname SB
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret <enable-secret>
+enable secret class
 line console 0
- password <console-password>
+ password cisco
  login
  logging synchronous
  exit
 line vty 0 15
- password <vty-password>
+ password cisco
  login
  exit
 interface GigabitEthernet0/0
@@ -68,7 +68,7 @@ crypto isakmp policy 10
  authentication pre-share
  group 5
  exit
-crypto isakmp key <vpn-psk> address 209.165.200.18
+crypto isakmp key cisco123 address 209.165.200.18
 crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
  mode transport
  exit
@@ -95,10 +95,10 @@ ntp update-calendar
 ip access-list standard SNMP_ACL
  permit host 192.168.0.3
  exit
-snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server community ciscolab RO SNMP_ACL
 snmp-server location SB
-snmp-server contact <student names>
-snmp-server host 192.168.0.3 version 2c <snmp-community>
+snmp-server contact Student
+snmp-server host 192.168.0.3 version 2c ciscolab
 snmp-server enable traps
 logging host 192.168.0.3
 logging trap informational
@@ -113,14 +113,14 @@ configure terminal
 hostname MG
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret <enable-secret>
+enable secret class
 line console 0
- password <console-password>
+ password cisco
  login
  logging synchronous
  exit
 line vty 0 15
- password <vty-password>
+ password cisco
  login
  exit
 interface GigabitEthernet0/1
@@ -138,7 +138,7 @@ crypto isakmp policy 10
  authentication pre-share
  group 5
  exit
-crypto isakmp key <vpn-psk> address 209.165.200.1
+crypto isakmp key cisco123 address 209.165.200.1
 crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
  mode transport
  exit
@@ -165,10 +165,10 @@ ntp update-calendar
 ip access-list standard SNMP_ACL
  permit host 172.16.0.2
  exit
-snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server community ciscolab RO SNMP_ACL
 snmp-server location MG
-snmp-server contact <student names>
-snmp-server host 172.16.0.2 version 2c <snmp-community>
+snmp-server contact Student
+snmp-server host 172.16.0.2 version 2c ciscolab
 snmp-server enable traps
 logging host 172.16.0.2
 logging trap informational
@@ -183,14 +183,14 @@ configure terminal
 hostname SB-S1
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret <enable-secret>
+enable secret class
 line console 0
- password <console-password>
+ password cisco
  login
  logging synchronous
  exit
 line vty 0 15
- password <vty-password>
+ password cisco
  login
  exit
 interface range FastEthernet0/1 - 24
@@ -205,10 +205,10 @@ ntp server 192.168.0.1
 ip access-list standard SNMP_ACL
  permit host 192.168.0.3
  exit
-snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server community ciscolab RO SNMP_ACL
 snmp-server location SB
-snmp-server contact <student names>
-snmp-server host 192.168.0.3 version 2c <snmp-community>
+snmp-server contact Student
+snmp-server host 192.168.0.3 version 2c ciscolab
 snmp-server enable traps
 logging host 192.168.0.3
 logging trap informational
@@ -223,14 +223,14 @@ configure terminal
 hostname MG-S1
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret <enable-secret>
+enable secret class
 line console 0
- password <console-password>
+ password cisco
  login
  logging synchronous
  exit
 line vty 0 15
- password <vty-password>
+ password cisco
  login
  exit
 interface range FastEthernet0/1 - 24
@@ -245,10 +245,10 @@ ntp server 192.168.0.1
 ip access-list standard SNMP_ACL
  permit host 172.16.0.2
  exit
-snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server community ciscolab RO SNMP_ACL
 snmp-server location MG
-snmp-server contact <student names>
-snmp-server host 172.16.0.2 version 2c <snmp-community>
+snmp-server contact Student
+snmp-server host 172.16.0.2 version 2c ciscolab
 snmp-server enable traps
 logging host 172.16.0.2
 logging trap informational
