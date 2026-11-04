@@ -18,6 +18,11 @@ devices ping MG end devices through the tunnel) and Lab 8.6 (DC1, DC2 and SB-FS2
 | 9.4 | SNMP bandwidth and Ping sensors: SB router and SB-S1 on the core; MG router and MG-S1 on the remote probe; syslog sensors on both | video 9.4 |
 | End | Demonstrate to the teacher; screenshots into the AT4 Part 2 template; sign-off | |
 
+Complete device configurations for this lab: `02_student_work/network/Lab9_PRTG_device_configs_2026-11-04.txt`
+(ISP, SB with tunnel and NTP master, MG with tunnel, SB-S1, MG-S1, plus the PRTG/Windows notes). Addressing as
+the student set it on 2026-11-04: PRTG core on SB-FS2 192.168.2.5, DC1 192.168.2.2, DC2 172.16.0.2, MG remote
+probe PC 172.16.0.3, MG-S1 SVI moved to 172.16.0.254. Tunnel values are Netacad defaults until Lab 5 is seen.
+
 Consequence: the three-router topology (SB - ISP - MG with the serial links and the GRE/IPsec tunnel) is
 required; the single-router shortcut of 2026-10-29 does not meet the starting requirement.
 

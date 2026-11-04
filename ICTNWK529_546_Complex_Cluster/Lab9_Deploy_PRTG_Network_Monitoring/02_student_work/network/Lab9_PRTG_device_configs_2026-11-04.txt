@@ -1,0 +1,457 @@
+! ============================================================================
+! Lab 9 - Deploy PRTG Network Monitoring System: complete device configurations
+! Written 2026-11-04 from the assessment brief. Topology = Lab 5 (SB - ISP - MG,
+! serial links, IPsec-over-GRE tunnel SB<->MG) + Lab 8 servers. SNMP per teaching
+! lab CN-5.2.2.6, NTP and syslog per CN-8.1.2.6.
+! ============================================================================
+! PLACEHOLDERS (replace before pasting; same value everywhere it appears)
+!   <enable-secret> <console-password> <vty-password>   device passwords (class / cisco if the teacher
+!                                                       wants the Netacad defaults)
+!   <snmp-community>        one read-only community for all devices and both PRTG probes
+!   <student names>         snmp-server contact
+!   <vpn-psk>               the IPsec pre-shared key from Lab 5
+!   Tunnel addresses, policy/transform names and numbers below are standard Netacad values
+!   (10.10.10.0/30, policy 10, AES-256/SHA/group 5, VPN-SET, VPN-PROFILE). If your Lab 5 document
+!   uses different ones, use Lab 5's: the teacher may compare.
+!
+! ADDRESSING (yours)
+!   SB   Gi0/0.20 192.168.1.1/26   Gi0/0.30 192.168.1.65/26   Gi0/0.90 192.168.2.1/28
+!        S0/0/0 209.165.200.1/28 (DTE)       Tunnel0 10.10.10.1/30
+!   ISP  S0/0/0 209.165.200.2/28 (DCE)       S0/0/1 209.165.200.17/28 (DCE)
+!   MG   Gi0/1 172.16.0.1/24                 S0/0/1 209.165.200.18/28 (DTE)   Tunnel0 10.10.10.2/30
+!   SB-S1 Vlan90 192.168.2.14/28             MG-S1 Vlan1 172.16.0.254/24
+!   DC1 192.168.2.2      SB-FS2 = PRTG core (local probe) 192.168.2.5
+!   DC2 172.16.0.2       MG remote probe PC 172.16.0.3   (if the probe is installed on DC2 instead,
+!                                                         use 172.16.0.2 wherever 172.16.0.3 appears)
+! CABLING (as Lab 8): SB Gi0/0 -> SB-S1 Gi0/2 (trunk); MG Gi0/1 -> MG-S1 Gi0/1; serial DCE ends on ISP;
+!   SB host PC (DC1 + SB-FS2 VMs) -> SB-S1 Gi0/1 (VLAN 90); MG host PC (DC2 + probe VMs) -> MG-S1 Fa0/1.
+! ROUTING DESIGN: SB and MG default-route to ISP for the tunnel endpoints; OSPF area 0 runs ONLY across
+!   the tunnel (LANs + tunnel subnet), so site-to-site traffic is always inside the tunnel and the
+!   ISP never carries private addresses. ISP needs no routing protocol (both serial nets are connected).
+! LICENCE: the crypto commands need securityk9 on SB and MG. Check: show license | include securityk9
+!   If "Not Active": configure terminal / license boot module c1900 technology-package securityk9
+!   (c2900 on the 2911) / accept the EULA / end / write memory / reload. Then paste the crypto part.
+! ORDER: ISP, SB, MG (base + tunnel), SB-S1, MG-S1. "!" lines are comments.
+! ============================================================================
+
+
+! ============================================================================
+! 1. ISP  (1941 labelled ISP) - both DCE ends here
+! ============================================================================
+enable
+configure terminal
+hostname ISP
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+enable secret <enable-secret>
+banner motd # Lab 9 ISP - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+interface Serial0/0/0
+ description WAN-to-SB-S0/0/0
+ ip address 209.165.200.2 255.255.255.240
+ clock rate 64000
+ no shutdown
+ exit
+interface Serial0/0/1
+ description WAN-to-MG-S0/0/1
+ ip address 209.165.200.17 255.255.255.240
+ clock rate 64000
+ no shutdown
+ exit
+end
+write memory
+!
+! CHECK: show controllers serial 0/0/0 | include DCE|DTE|cable  -> DCE  (same for 0/0/1)
+!        show ip interface brief -> both serials up/up once SB and MG are configured
+
+
+! ============================================================================
+! 2. SB  (Cisco 2911 or 1941 labelled BNE/R1) - NTP master, SNMP agent -> SB-FS2, syslog -> SB-FS2
+! ============================================================================
+enable
+clock set <HH:MM:SS> <DD> <Month> 2026
+configure terminal
+hostname SB
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 SB - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/0
+ description Trunk-to-SB-S1-Gi0/2
+ no ip address
+ no shutdown
+ exit
+interface GigabitEthernet0/0.20
+ description VLAN20-CS
+ encapsulation dot1Q 20
+ ip address 192.168.1.1 255.255.255.192
+ exit
+interface GigabitEthernet0/0.30
+ description VLAN30-Marketing
+ encapsulation dot1Q 30
+ ip address 192.168.1.65 255.255.255.192
+ exit
+interface GigabitEthernet0/0.90
+ description VLAN90-Server
+ encapsulation dot1Q 90
+ ip address 192.168.2.1 255.255.255.240
+ exit
+interface Serial0/0/0
+ description WAN-to-ISP-S0/0/0
+ ip address 209.165.200.1 255.255.255.240
+ no shutdown
+ exit
+ip route 0.0.0.0 0.0.0.0 209.165.200.2
+!
+! --- Lab 5 tunnel: IPsec over GRE (needs securityk9) ---
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha
+ authentication pre-share
+ group 5
+ lifetime 3600
+ exit
+crypto isakmp key <vpn-psk> address 209.165.200.18
+crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
+ mode transport
+ exit
+crypto ipsec profile VPN-PROFILE
+ set transform-set VPN-SET
+ exit
+interface Tunnel0
+ description GRE-over-IPsec-to-MG
+ ip address 10.10.10.1 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel source Serial0/0/0
+ tunnel destination 209.165.200.18
+ tunnel protection ipsec profile VPN-PROFILE
+ no shutdown
+ exit
+router ospf 1
+ router-id 1.1.1.1
+ passive-interface GigabitEthernet0/0.20
+ passive-interface GigabitEthernet0/0.30
+ passive-interface GigabitEthernet0/0.90
+ network 192.168.1.0 0.0.0.63 area 0
+ network 192.168.1.64 0.0.0.63 area 0
+ network 192.168.2.0 0.0.0.15 area 0
+ network 10.10.10.0 0.0.0.3 area 0
+ exit
+!
+! --- Lab 9.2: NTP master (CN-8.1.2.6) ---
+ntp master 5
+ntp update-calendar
+!
+! --- Lab 9.2: SNMP agent reporting to the core probe on SB-FS2 (CN-5.2.2.6) ---
+ip access-list standard SNMP_ACL
+ permit host 192.168.2.5
+ exit
+snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server location SB-site
+snmp-server contact <student names>
+snmp-server host 192.168.2.5 version 2c <snmp-community>
+snmp-server enable traps
+!
+! --- Lab 9.2: syslog to the PRTG server on SB-FS2 ---
+logging host 192.168.2.5
+logging trap informational
+logging source-interface GigabitEthernet0/0.90
+end
+write memory
+!
+! CHECK: show ip interface brief -> Gi0/0 up (unassigned), .20 .30 .90 up, S0/0/0 up/up, Tunnel0 up/up
+!        show crypto isakmp sa   -> 209.165.200.18  QM_IDLE   (after MG is configured)
+!        show crypto ipsec sa    -> #pkts encaps / decaps increasing
+!        show ip ospf neighbor   -> 3.3.3.3 FULL on Tunnel0
+!        show ip route           -> O 172.16.0.0/24 via 10.10.10.2 (Tunnel0); S* 0.0.0.0/0 via 209.165.200.2
+!        show ntp status         -> Clock is synchronized, stratum 5
+!        show snmp               -> community/host listed ; show logging -> Logging to 192.168.2.5
+!        ping 172.16.0.1 ; ping 172.16.0.2
+! (CN-8.1.2.6 uses "logging trap warnings"; informational is used here so config changes and link
+!  events show up in PRTG's syslog sensor. Either is acceptable; say which in the portfolio.)
+
+
+! ============================================================================
+! 3. MG  (1941 labelled CNS/R2) - NTP client of SB, SNMP agent -> remote probe, syslog -> remote probe
+! ============================================================================
+enable
+configure terminal
+hostname MG
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 MG - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+!
+interface GigabitEthernet0/1
+ description MG-LAN-to-MG-S1-Gi0/1
+ ip address 172.16.0.1 255.255.255.0
+ no shutdown
+ exit
+interface Serial0/0/1
+ description WAN-to-ISP-S0/0/1
+ ip address 209.165.200.18 255.255.255.240
+ no shutdown
+ exit
+ip route 0.0.0.0 0.0.0.0 209.165.200.17
+!
+! --- Lab 5 tunnel: mirror of SB ---
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha
+ authentication pre-share
+ group 5
+ lifetime 3600
+ exit
+crypto isakmp key <vpn-psk> address 209.165.200.1
+crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
+ mode transport
+ exit
+crypto ipsec profile VPN-PROFILE
+ set transform-set VPN-SET
+ exit
+interface Tunnel0
+ description GRE-over-IPsec-to-SB
+ ip address 10.10.10.2 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel source Serial0/0/1
+ tunnel destination 209.165.200.1
+ tunnel protection ipsec profile VPN-PROFILE
+ no shutdown
+ exit
+router ospf 1
+ router-id 3.3.3.3
+ passive-interface GigabitEthernet0/1
+ network 172.16.0.0 0.0.0.255 area 0
+ network 10.10.10.0 0.0.0.3 area 0
+ exit
+!
+! --- Lab 9.2: NTP client of the SB router ---
+ntp server 192.168.2.1
+ntp update-calendar
+!
+! --- Lab 9.3: SNMP agent reporting to the MG remote probe ---
+ip access-list standard SNMP_ACL
+ permit host 172.16.0.3
+ exit
+snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server location MG-site
+snmp-server contact <student names>
+snmp-server host 172.16.0.3 version 2c <snmp-community>
+snmp-server enable traps
+!
+! --- Lab 9.3: syslog to the remote probe ---
+logging host 172.16.0.3
+logging trap informational
+logging source-interface GigabitEthernet0/1
+end
+write memory
+!
+! CHECK: show ip interface brief -> Gi0/1 up/up, S0/0/1 up/up, Tunnel0 up/up
+!        show crypto isakmp sa -> QM_IDLE ; show crypto ipsec sa -> counters rising
+!        show ip ospf neighbor -> 1.1.1.1 FULL on Tunnel0
+!        show ip route -> O 192.168.2.0/28, 192.168.1.0/26, 192.168.1.64/26 via 10.10.10.1
+!        ping 192.168.2.1 ; ping 192.168.2.5
+!        show ntp associations -> 192.168.2.1 with * (5 to 10 minutes after the tunnel is up)
+!        show snmp ; show logging
+
+
+! ============================================================================
+! 4. SB-S1  (2960 labelled BNES1) - NTP client, SNMP agent -> SB-FS2, syslog -> SB-FS2
+! ============================================================================
+enable
+configure terminal
+hostname SB-S1
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 SB-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+vlan 20
+ name CS
+ exit
+vlan 30
+ name Marketing
+ exit
+vlan 90
+ name Server
+ exit
+interface range FastEthernet0/1 - 4
+ description VLAN20-CS
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ exit
+interface range FastEthernet0/5 - 8
+ description VLAN30-Marketing
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ exit
+interface range FastEthernet0/9 - 10
+ description VLAN90-Server
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ exit
+interface GigabitEthernet0/1
+ description SB-host-PC-DC1-SBFS2-VLAN90
+ switchport mode access
+ switchport access vlan 90
+ spanning-tree portfast
+ exit
+interface GigabitEthernet0/2
+ description Trunk-to-SB-Gi0/0
+ switchport mode trunk
+ switchport trunk allowed vlan 20,30,90
+ switchport nonegotiate
+ exit
+interface Vlan1
+ shutdown
+ exit
+interface Vlan90
+ description Management
+ ip address 192.168.2.14 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.1
+!
+ntp server 192.168.2.1
+ip access-list standard SNMP_ACL
+ permit host 192.168.2.5
+ exit
+snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server location SB-site
+snmp-server contact <student names>
+snmp-server host 192.168.2.5 version 2c <snmp-community>
+snmp-server enable traps
+logging host 192.168.2.5
+logging trap informational
+end
+write memory
+!
+! CHECK: show interfaces trunk ; show vlan brief ; ping 192.168.2.1 ; ping 192.168.2.5
+!        show ntp associations ; show snmp ; show logging
+
+
+! ============================================================================
+! 5. MG-S1  (2960 Plus, marker MG-S1) - NTP client, SNMP agent -> remote probe, syslog -> remote probe
+! ============================================================================
+enable
+configure terminal
+hostname MG-S1
+no ip domain-lookup
+service password-encryption
+service timestamps log datetime msec
+clock timezone AEST 10
+enable secret <enable-secret>
+banner motd # Lab 9 MG-S1 - authorised use only #
+line console 0
+ password <console-password>
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password <vty-password>
+ login
+ exit
+interface GigabitEthernet0/1
+ description Uplink-to-MG-Gi0/1
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ exit
+interface range FastEthernet0/1 - 2
+ description MG-host-PC-DC2-probe
+ switchport mode access
+ switchport access vlan 1
+ spanning-tree portfast
+ exit
+interface Vlan1
+ description Management
+ ip address 172.16.0.254 255.255.255.0
+ no shutdown
+ exit
+ip default-gateway 172.16.0.1
+!
+ntp server 192.168.2.1
+ip access-list standard SNMP_ACL
+ permit host 172.16.0.3
+ exit
+snmp-server community <snmp-community> RO SNMP_ACL
+snmp-server location MG-site
+snmp-server contact <student names>
+snmp-server host 172.16.0.3 version 2c <snmp-community>
+snmp-server enable traps
+logging host 172.16.0.3
+logging trap informational
+end
+write memory
+!
+! CHECK: show interfaces status ; ping 172.16.0.1 ; ping 192.168.2.1 (through the tunnel)
+!        show ntp associations ; show snmp ; show logging
+
+
+! ============================================================================
+! 6. SERVERS AND PRTG (Windows side)
+! ============================================================================
+! SB-FS2 (192.168.2.5, PRTG core): install PRTG (video 9.1). Windows Firewall inbound rules:
+!   UDP 514 (syslog), UDP 162 (SNMP traps), TCP 23560 (remote probe connections), TCP 80/443 (web UI).
+!   PRTG > Setup > System Administration > Core & Probes: Probe Connection IPs = all, Access Key noted,
+!   Allow IPs 172.16.0.3. Setup > Downloads > Remote Probe Installer (video 9.2).
+! MG remote probe (172.16.0.3; or DC2 at 172.16.0.2): run the installer, core address 192.168.2.5,
+!   access key; approve the new probe in the core's web UI (video 9.3). Firewall inbound: UDP 514, UDP 162.
+! Sensors (video 9.4): on the Local Probe add devices SB (192.168.2.1) and SB-S1 (192.168.2.14), each with
+!   Ping and SNMP Traffic (the "bandwidth" sensor; SNMP v2c, community <snmp-community>); on the Remote Probe
+!   add MG (172.16.0.1) and MG-S1 (172.16.0.254) the same way; add a Syslog Receiver sensor on each probe.
+!   Generate traffic for the syslog sensor: on a device, configure terminal / end (logs SYS-5-CONFIG_I).
+! Test across the tunnel before anything else: from SB-FS2  ping 172.16.0.1  and  ping 172.16.0.3 ;
+!   from the probe PC  ping 192.168.2.5 ; Test-NetConnection 192.168.2.5 -Port 23560.
+!
+! EVIDENCE: show crypto isakmp sa / show interfaces tunnel 0 (SB and MG); show ip ospf neighbor;
+!   show ntp status (SB) and show ntp associations (clients); show snmp on all four; show logging;
+!   PRTG core device tree with the four sensors green; remote probe connected and its sensors;
+!   syslog sensor showing received messages; cross-site pings.
