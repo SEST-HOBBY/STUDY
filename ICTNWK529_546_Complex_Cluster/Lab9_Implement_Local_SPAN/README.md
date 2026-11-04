@@ -1,7 +1,16 @@
-# Complex Cluster: Lab 9 (name to be filled in from the brief)
+# Complex Cluster: Lab 9, Implement Local SPAN (Cisco Networking Academy lab CN 5.3.2.3)
 
-Folder created 2026-10-28, before the Lab 9 brief was received. Rename this folder to `Lab9_<topic>` once the
-brief names it. Same layout as Lab 8: `00_` supplied documents (never edit), `01_` supplied reference, `02_` my
+Brief received 2026-11-04: `00_assessment_documents/Week_9_Teaching_Lab_CN-5.3.2.3_Implement_Local_SPAN.pdf`
+(6 pages). It is a standalone Netacad lab: one 1941 router (R1), two 2960 switches (S1, S3), two PCs, flat
+192.168.1.0/24 addressing, basic device settings, then a local SPAN session on S1 (source F0/5 = the router
+port, destination F0/6 = PC-A running Wireshark), telnet from S1 to R1, pings from R1, ICMP capture, two
+questions and a reflection (IDS vs IPS). It does NOT build on the Lab 8 network or domain; the earlier PRTG /
+SNMP / syslog / IPsec notes in this folder came from ChatGPT guesses and are superseded (kept in
+`02_student_work/network/` for the record, not for use).
+
+Mapping to the rack (2026-11-04): R1 = the 1941 labelled ISP; S1 = the 2960 Plus (marker MG-S1); S3 = the 2960
+labelled BNES1; PC-A (Wireshark) = the student's PC; PC-C = the classmate's PC. Configs and walkthrough:
+`02_student_work/network/Lab9_SPAN_configs_2026-11-04.txt`. Same layout as Lab 8: `00_` supplied documents (never edit), `01_` supplied reference, `02_` my
 work and screenshots, `03_` the report, `04_` extracted views, `05_` analysis and procedures.
 
 ## Rollover from the earlier labs
