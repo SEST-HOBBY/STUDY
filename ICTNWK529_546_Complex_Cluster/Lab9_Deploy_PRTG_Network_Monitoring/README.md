@@ -20,8 +20,8 @@ devices ping MG end devices through the tunnel) and Lab 8.6 (DC1, DC2 and SB-FS2
 
 Complete device configurations for this lab: `02_student_work/network/Lab9_PRTG_device_configs_2026-11-04.txt`
 (ISP, SB with tunnel and NTP master, MG with tunnel, SB-S1, MG-S1, plus the PRTG/Windows notes). Addressing as
-the student set it on 2026-11-04: PRTG core on SB-FS2 192.168.2.5, DC1 192.168.2.2, DC2 172.16.0.2, MG remote
-probe PC 172.16.0.3, MG-S1 SVI moved to 172.16.0.254. Tunnel values are Netacad defaults until Lab 5 is seen.
+the student set it on 2026-11-04: SB LAN flat 192.168.0.0/24 (SB router .1 = NTP master, DC1 .2, PRTG core on
+SB-FS2 .3, SB-S1 SVI .254); MG LAN 172.16.0.0/24 (MG .1, DC2 .2 = remote probe, MG-S1 SVI .254). Tunnel values are Netacad defaults until Lab 5 is seen.
 
 Consequence: the three-router topology (SB - ISP - MG with the serial links and the GRE/IPsec tunnel) is
 required; the single-router shortcut of 2026-10-29 does not meet the starting requirement.
