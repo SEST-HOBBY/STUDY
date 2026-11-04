@@ -1,17 +1,25 @@
-# Complex Cluster: Lab 9, Implement Local SPAN (Cisco Networking Academy lab CN 5.3.2.3)
+# Complex Cluster: Lab 9, Deploy PRTG Network Monitoring System (Student Assessment Lab, Week 9)
 
-Brief received 2026-11-04: `00_assessment_documents/Week_9_Teaching_Lab_CN-5.3.2.3_Implement_Local_SPAN.pdf`
-(6 pages). It is a standalone Netacad lab: one 1941 router (R1), two 2960 switches (S1, S3), two PCs, flat
-192.168.1.0/24 addressing, basic device settings, then a local SPAN session on S1 (source F0/5 = the router
-port, destination F0/6 = PC-A running Wireshark), telnet from S1 to R1, pings from R1, ICMP capture, two
-questions and a reflection (IDS vs IPS). It does NOT build on the Lab 8 network or domain; the earlier PRTG /
-SNMP / syslog / IPsec notes in this folder came from ChatGPT guesses and are superseded (kept in
-`02_student_work/network/` for the record, not for use).
+Brief received 2026-11-04: `00_assessment_documents/Week_9_Student_Assess_Lab_Deploy_PRTG_Network_Monitoring_System.docx`
+(text in `04_extracted_views/Lab9_Deploy_PRTG_brief.txt`, topology in `04_extracted_views/Lab9_topology_from_brief.png`).
+The Netacad "Implement Local SPAN" PDF received earlier the same day is the Week 9 TEACHING lab, not the
+assessment; it is kept in `00_assessment_documents/` as a reference and its config file in `02_student_work/network/`.
 
-Mapping to the rack (2026-11-04): R1 = the 1941 labelled ISP; S1 = the 2960 Plus (marker MG-S1); S3 = the 2960
-labelled BNES1; PC-A (Wireshark) = the student's PC; PC-C = the classmate's PC. Configs and walkthrough:
-`02_student_work/network/Lab9_SPAN_configs_2026-11-04.txt`. Same layout as Lab 8: `00_` supplied documents (never edit), `01_` supplied reference, `02_` my
-work and screenshots, `03_` the report, `04_` extracted views, `05_` analysis and procedures.
+## What the assessment requires (from the brief)
+
+Starting state: the network as in Lab 5 (VPN IPsec over GRE tunnel between the SB and MG routers; SB end
+devices ping MG end devices through the tunnel) and Lab 8.6 (DC1, DC2 and SB-FS2 installed and configured).
+
+| Sub-lab | Requirement | Reference |
+|---|---|---|
+| 9.1 | Install PRTG (core, local probe) on SB-FS2 | video 9.1; setup program from Connect |
+| 9.2 | SNMP manager on the PRTG server; SNMP agents on SB router and SB-S1 reporting to the core probe. SB router = NTP master; SB-S1, MG router, MG-S1 = NTP clients. PRTG on SB-FS2 = syslog server for SB router and SB-S1. Create the remote-probe installer | teaching labs CN-5.2.2.6 (SNMP) and CN-8.1.2.6 (Syslog and NTP); video 9.2 |
+| 9.3 | Remote probe on DC2 reporting to SB-FS2; SNMP agents on MG router and MG-S1 reporting to the remote probe; DC2 = syslog server for MG router and MG-S1 | video 9.3; the same two teaching labs |
+| 9.4 | SNMP bandwidth and Ping sensors: SB router and SB-S1 on the core; MG router and MG-S1 on the remote probe; syslog sensors on both | video 9.4 |
+| End | Demonstrate to the teacher; screenshots into the AT4 Part 2 template; sign-off | |
+
+Consequence: the three-router topology (SB - ISP - MG with the serial links and the GRE/IPsec tunnel) is
+required; the single-router shortcut of 2026-10-29 does not meet the starting requirement.
 
 ## Rollover from the earlier labs
 

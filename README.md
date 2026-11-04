@@ -17,7 +17,7 @@ supplied documents, reference material and my own work are kept apart and the pr
 | Folder | Status |
 |---|---|
 | `ICTNWK529_546_Complex_Cluster/AT2_Network_Infrastructure_Proposal` | Report rebuilt in first person; see that folder's README for the file register and what is still missing |
-| `ICTNWK529_546_Complex_Cluster/Lab9_Implement_Local_SPAN` | Netacad lab CN 5.3.2.3 (Local SPAN): brief, device configs mapped to the rack, walkthrough |
+| `ICTNWK529_546_Complex_Cluster/Lab9_Deploy_PRTG_Network_Monitoring` | Week 9 assessment: PRTG core on SB-FS2, remote probe on DC2, SNMP/NTP/syslog on the Lab 5 network; the SPAN teaching lab kept as reference |
 | `ICTNWK529_546_Complex_Cluster/Lab8_Install_and_Configure_ADDS_Services` | Lab 8.1 to 8.10 (12 work packages): initial recovery report, discrepancy register, evidence checklist. Old 2025 VMs found; read-only inventory first |
 
 Conventions: never edit files in `00_`/`01_`; put derived views in `04_`; keep the decrypt tool and any check scripts in `05_analysis/tools`.
