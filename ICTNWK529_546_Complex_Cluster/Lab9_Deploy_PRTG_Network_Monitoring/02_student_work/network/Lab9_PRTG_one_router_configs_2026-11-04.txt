@@ -1,9 +1,8 @@
 ! Lab 9 PRTG - ONE ROUTER version. Router (1941, hostname SB-MG) serves both sides.
 !   Gi0/0 -> SB-S1 Gi0/2 : SB side 192.168.0.1  (DC1 .2, PRTG core SB-FS2 .3, SB-S1 .254)
 !   Gi0/1 -> MG-S1 Gi0/1 : MG side 172.16.0.1   (DC2 .2 = remote probe, MG-S1 .254)
-! No ISP, no serials, no tunnel. The router is the NTP master and reports SNMP + syslog to BOTH probes.
-! Values as the teaching labs: enable secret class, console/vty cisco, SNMP community ciscolab, contact Student.
-! Paste as is. Order: router, SB-S1, MG-S1.
+! No ISP, no serials, no tunnel, no passwords, no spanning-tree lines.
+! SNMP community ciscolab, contact Student. Paste as is. Order: router, SB-S1, MG-S1.
 
 
 ! ===== ROUTER SB-MG =====
@@ -13,15 +12,8 @@ configure terminal
 hostname SB-MG
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret class
 line console 0
- password cisco
- login
  logging synchronous
- exit
-line vty 0 15
- password cisco
- login
  exit
 interface GigabitEthernet0/0
  description SB-side-to-SB-S1-Gi0/2
@@ -61,18 +53,8 @@ configure terminal
 hostname SB-S1
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret class
 line console 0
- password cisco
- login
  logging synchronous
- exit
-line vty 0 15
- password cisco
- login
- exit
-interface range FastEthernet0/1 - 24
- spanning-tree portfast
  exit
 interface Vlan1
  ip address 192.168.0.254 255.255.255.0
@@ -101,18 +83,8 @@ configure terminal
 hostname MG-S1
 no ip domain-lookup
 service timestamps log datetime msec
-enable secret class
 line console 0
- password cisco
- login
  logging synchronous
- exit
-line vty 0 15
- password cisco
- login
- exit
-interface range FastEthernet0/1 - 24
- spanning-tree portfast
  exit
 interface Vlan1
  ip address 172.16.0.254 255.255.255.0
