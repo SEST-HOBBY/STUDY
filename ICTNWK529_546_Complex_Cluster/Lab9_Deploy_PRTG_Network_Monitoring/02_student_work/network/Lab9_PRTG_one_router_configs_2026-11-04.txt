@@ -1,0 +1,144 @@
+! Lab 9 PRTG - ONE ROUTER version. Router (1941, hostname SB-MG) serves both sides.
+!   Gi0/0 -> SB-S1 Gi0/2 : SB side 192.168.0.1  (DC1 .2, PRTG core SB-FS2 .3, SB-S1 .254)
+!   Gi0/1 -> MG-S1 Gi0/1 : MG side 172.16.0.1   (DC2 .2 = remote probe, MG-S1 .254)
+! No ISP, no serials, no tunnel. The router is the NTP master and reports SNMP + syslog to BOTH probes.
+! Values as the teaching labs: enable secret class, console/vty cisco, SNMP community ciscolab, contact Student.
+! Paste as is. Order: router, SB-S1, MG-S1.
+
+
+! ===== ROUTER SB-MG =====
+enable
+clock set 10:00:00 4 Nov 2026
+configure terminal
+hostname SB-MG
+no ip domain-lookup
+service timestamps log datetime msec
+enable secret class
+line console 0
+ password cisco
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password cisco
+ login
+ exit
+interface GigabitEthernet0/0
+ description SB-side-to-SB-S1-Gi0/2
+ ip address 192.168.0.1 255.255.255.0
+ no shutdown
+ exit
+interface GigabitEthernet0/1
+ description MG-side-to-MG-S1-Gi0/1
+ ip address 172.16.0.1 255.255.255.0
+ no shutdown
+ exit
+ntp master 5
+ntp update-calendar
+ip access-list standard SNMP_ACL
+ permit host 192.168.0.3
+ permit host 172.16.0.2
+ exit
+snmp-server community ciscolab RO SNMP_ACL
+snmp-server location SB-MG
+snmp-server contact Student
+snmp-server host 192.168.0.3 version 2c ciscolab
+snmp-server host 172.16.0.2 version 2c ciscolab
+snmp-server enable traps
+logging host 192.168.0.3
+logging host 172.16.0.2
+logging trap informational
+end
+write memory
+! check: show ip interface brief (Gi0/0 192.168.0.1 up/up, Gi0/1 172.16.0.1 up/up)
+!        show ip route (C 192.168.0.0/24, C 172.16.0.0/24) ; show ntp status (stratum 5)
+!        ping 192.168.0.3 ; ping 172.16.0.2
+
+
+! ===== SB-S1 =====
+enable
+configure terminal
+hostname SB-S1
+no ip domain-lookup
+service timestamps log datetime msec
+enable secret class
+line console 0
+ password cisco
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password cisco
+ login
+ exit
+interface range FastEthernet0/1 - 24
+ spanning-tree portfast
+ exit
+interface Vlan1
+ ip address 192.168.0.254 255.255.255.0
+ no shutdown
+ exit
+ip default-gateway 192.168.0.1
+ntp server 192.168.0.1
+ip access-list standard SNMP_ACL
+ permit host 192.168.0.3
+ exit
+snmp-server community ciscolab RO SNMP_ACL
+snmp-server location SB
+snmp-server contact Student
+snmp-server host 192.168.0.3 version 2c ciscolab
+snmp-server enable traps
+logging host 192.168.0.3
+logging trap informational
+end
+write memory
+! check: ping 192.168.0.1 ; ping 192.168.0.3 ; show ntp associations
+
+
+! ===== MG-S1 =====
+enable
+configure terminal
+hostname MG-S1
+no ip domain-lookup
+service timestamps log datetime msec
+enable secret class
+line console 0
+ password cisco
+ login
+ logging synchronous
+ exit
+line vty 0 15
+ password cisco
+ login
+ exit
+interface range FastEthernet0/1 - 24
+ spanning-tree portfast
+ exit
+interface Vlan1
+ ip address 172.16.0.254 255.255.255.0
+ no shutdown
+ exit
+ip default-gateway 172.16.0.1
+ntp server 192.168.0.1
+ip access-list standard SNMP_ACL
+ permit host 172.16.0.2
+ exit
+snmp-server community ciscolab RO SNMP_ACL
+snmp-server location MG
+snmp-server contact Student
+snmp-server host 172.16.0.2 version 2c ciscolab
+snmp-server enable traps
+logging host 172.16.0.2
+logging trap informational
+end
+write memory
+! check: ping 172.16.0.1 ; ping 192.168.0.1 ; show ntp associations
+
+
+! ===== Windows =====
+! SB-FS2 192.168.0.3 (PRTG core): firewall inbound UDP 514, UDP 162, TCP 23560, TCP 80/443.
+!   Setup > Downloads > Remote Probe Installer -> run on DC2 with core 192.168.0.3 + access key -> approve probe.
+! DC2 172.16.0.2 (remote probe): firewall inbound UDP 514, UDP 162.
+! Sensors: local probe  -> SB-MG 192.168.0.1 and SB-S1 192.168.0.254 : Ping + SNMP Traffic + Syslog Receiver
+!          remote probe -> SB-MG 172.16.0.1 and MG-S1 172.16.0.254   : Ping + SNMP Traffic + Syslog Receiver
+! SNMP credentials in PRTG: v2c, community ciscolab.
