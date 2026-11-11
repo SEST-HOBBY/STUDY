@@ -1,0 +1,35 @@
+root@vm:~# telnet mail.lab.local 110
+Trying 192.0.2.2...
+Connected to mail.lab.local.
+Escape character is '^]'.
++OK Dovecot (Ubuntu) ready.
+USER user1
++OK
+PASS Lab12-Pass!
++OK Logged in.
+LIST
++OK 1 messages:
+1 539
+.
+RETR 1
++OK 539 octets
+Return-Path: <user2@lab.local>
+X-Original-To: user1@lab.local
+Delivered-To: user1@lab.local
+Received: from client.lab.local (mail.lab.local [192.0.2.2])
+	by mail.lab.local (Postfix) with ESMTP id A25A28C5C1
+	for <user1@lab.local>; Wed, 11 Nov 2026 08:25:54 +0000 (UTC)
+Date: Wed, 11 Nov 2026 08:25:54 +0000
+To: user1@lab.local
+From: user2@lab.local
+Subject: RE: Lab 12 test message
+Message-Id: <20261111082554.006799@vm>
+X-Mailer: swaks v20240103.0 jetmore.org/john/code/swaks/
+
+Hello user1, received. This is the reply.
+
+
+.
+QUIT
++OK Logging out.
+Connection closed by foreign host.

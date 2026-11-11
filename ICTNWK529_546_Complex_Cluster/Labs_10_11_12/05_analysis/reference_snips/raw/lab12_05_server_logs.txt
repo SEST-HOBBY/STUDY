@@ -1,0 +1,8 @@
+root@vm:~# grep -E 'from=<|to=<' /var/log/postfix.log
+Nov 11 08:25:52 mail postfix/qmgr[6760]: 331738C5B1: from=<user1@lab.local>, size=455, nrcpt=1 (queue active)
+Nov 11 08:25:52 mail postfix/local[6791]: 331738C5B1: to=<user2@lab.local>, relay=local, delay=0.01, delays=0.01/0/0/0, dsn=2.0.0, status=sent (delivered to maildir)
+Nov 11 08:25:54 mail postfix/qmgr[6760]: A25A28C5C1: from=<user2@lab.local>, size=444, nrcpt=1 (queue active)
+Nov 11 08:25:54 mail postfix/local[6791]: A25A28C5C1: to=<user1@lab.local>, relay=local, delay=0.01, delays=0.01/0/0/0, dsn=2.0.0, status=sent (delivered to maildir)
+root@vm:~# grep -E 'Login' /var/log/dovecot.log
+Nov 11 08:25:54 imap-login: Info: Login: user=<user2>, method=PLAIN, rip=192.0.2.2, lip=192.0.2.2, mpid=6797, secured, session=<ZKSN8ftf6pHAAAIC>
+Nov 11 08:25:56 pop3-login: Info: Login: user=<user1>, method=PLAIN, rip=192.0.2.2, lip=192.0.2.2, mpid=6806, secured, session=<Gtez8ftfKpbAAAIC>

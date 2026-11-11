@@ -1,0 +1,33 @@
+root@vm:~# telnet mail.lab.local 143
+Trying 192.0.2.2...
+Connected to mail.lab.local.
+Escape character is '^]'.
+* OK [CAPABILITY IMAP4rev1 SASL-IR LOGIN-REFERRALS ID ENABLE IDLE LITERAL+ AUTH=PLAIN] Dovecot (Ubuntu) ready.
+a1 LOGIN user2 Lab12-Pass!
+a1 OK [CAPABILITY IMAP4rev1 SASL-IR LOGIN-REFERRALS ID ENABLE IDLE SORT SORT=DISPLAY THREAD=REFERENCES THREAD=REFS THREAD=ORDEREDSUBJECT MULTIAPPEND URL-PARTIAL CATENATE UNSELECT CHILDREN NAMESPACE UIDPLUS LIST-EXTENDED I18NLEVEL=1 CONDSTORE QRESYNC ESEARCH ESORT SEARCHRES WITHIN CONTEXT=SEARCH LIST-STATUS BINARY MOVE SNIPPET=FUZZY PREVIEW=FUZZY PREVIEW STATUS=SIZE SAVEDATE LITERAL+ NOTIFY SPECIAL-USE] Logged in
+a2 SELECT INBOX
+* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)
+* OK [PERMANENTFLAGS (\Answered \Flagged \Deleted \Seen \Draft \*)] Flags permitted.
+* 1 EXISTS
+* 1 RECENT
+* OK [UNSEEN 1] First unseen.
+* OK [UIDVALIDITY 1794385554] UIDs valid
+* OK [UIDNEXT 2] Predicted next UID
+a2 OK [READ-WRITE] Select completed (0.004 + 0.000 + 0.003 secs).
+a3 FETCH 1 (BODY[HEADER.FIELDS (FROM TO SUBJECT DATE)] BODY[TEXT])
+* 1 FETCH (FLAGS (\Seen \Recent) BODY[HEADER.FIELDS (FROM TO SUBJECT DATE)] {115}
+Date: Wed, 11 Nov 2026 08:25:52 +0000
+To: user2@lab.local
+From: user1@lab.local
+Subject: Lab 12 test message
+
+ BODY[TEXT] {62}
+Hello user2, this is the Lab 12 test message from user1.
+
+
+)
+a3 OK Fetch completed (0.001 + 0.000 secs).
+a4 LOGOUT
+* BYE Logging out
+a4 OK Logout completed (0.001 + 0.000 secs).
+Connection closed by foreign host.

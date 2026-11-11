@@ -1,0 +1,2 @@
+root@vm:~# curl http://192.0.2.2:8080/uid/index.html
+uid=0(root) gid=0(root) groups=0(root)

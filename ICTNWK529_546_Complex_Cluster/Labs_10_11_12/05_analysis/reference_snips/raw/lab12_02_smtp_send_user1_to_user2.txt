@@ -1,0 +1,37 @@
+root@vm:~# swaks --server mail.lab.local --helo client.lab.local --from user1@lab.local --to user2@lab.local --header 'Subject: Lab 12 test message' --body 'Hello user2, this is the Lab 12 test message from user1.'
+=== Trying mail.lab.local:25...
+=== Connected to mail.lab.local.
+<-  220 mail.lab.local ESMTP
+ -> EHLO client.lab.local
+<-  250-mail.lab.local
+<-  250-PIPELINING
+<-  250-SIZE 10240000
+<-  250-VRFY
+<-  250-ETRN
+<-  250-STARTTLS
+<-  250-ENHANCEDSTATUSCODES
+<-  250-8BITMIME
+<-  250-DSN
+<-  250-SMTPUTF8
+<-  250 CHUNKING
+ -> MAIL FROM:<user1@lab.local>
+<-  250 2.1.0 Ok
+ -> RCPT TO:<user2@lab.local>
+<-  250 2.1.5 Ok
+ -> DATA
+<-  354 End data with <CR><LF>.<CR><LF>
+ -> Date: Wed, 11 Nov 2026 08:25:52 +0000
+ -> To: user2@lab.local
+ -> From: user1@lab.local
+ -> Subject: Lab 12 test message
+ -> Message-Id: <20261111082552.006785@vm>
+ -> X-Mailer: swaks v20240103.0 jetmore.org/john/code/swaks/
+ -> 
+ -> Hello user2, this is the Lab 12 test message from user1.
+ -> 
+ -> 
+ -> .
+<-  250 2.0.0 Ok: queued as 331738C5B1
+ -> QUIT
+<-  221 2.0.0 Bye
+=== Connection closed with remote host.

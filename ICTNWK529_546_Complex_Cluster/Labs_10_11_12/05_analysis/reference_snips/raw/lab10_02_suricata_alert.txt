@@ -1,0 +1,9 @@
+root@vm:~# suricata -V
+This is Suricata version 7.0.3 RELEASE
+root@vm:~# cat local.rules
+alert ip any any -> any any (msg:"GPL ATTACK_RESPONSE id check returned root"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:2100498; rev:7;)
+root@vm:~# suricata -r test.pcap -S local.rules -k none -l logs/ | tail -2
+i: suricata: Signal Received.  Stopping engine.
+i: pcap: read 1 file, 13 packets, 1190 bytes
+root@vm:~# cat logs/fast.log
+11/11/2026-08:26:12.968033  [**] [1:2100498:7] GPL ATTACK_RESPONSE id check returned root [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 192.0.2.2:8080 -> 192.0.2.2:50056

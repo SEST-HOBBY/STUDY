@@ -1,0 +1,2 @@
+root@vm:~# swaks --server mail.lab.local --helo client.lab.local --from user2@lab.local --to user1@lab.local --header 'Subject: RE: Lab 12 test message' --body 'Hello user1, received. This is the reply.' --hide-all; echo swaks exit code: $?
+swaks exit code: 0

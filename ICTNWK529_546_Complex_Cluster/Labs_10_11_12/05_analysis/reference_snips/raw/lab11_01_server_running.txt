@@ -1,0 +1,6 @@
+root@vm:~# vsftpd -v 2>&1 0>&1
+vsftpd: version 3.0.5
+root@vm:~# pgrep -a vsftpd | grep -v defunct
+6976 /usr/sbin/vsftpd /etc/vsftpd.conf
+root@vm:~# ss -tlnp | grep ':21 '
+LISTEN 0      32           0.0.0.0:21         0.0.0.0:*    users:(("vsftpd",pid=6976,fd=3))  

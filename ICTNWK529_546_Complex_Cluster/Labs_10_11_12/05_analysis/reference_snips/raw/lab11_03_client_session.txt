@@ -1,0 +1,38 @@
+root@vm:/tmp/ftpclient# ftp 192.0.2.2
+Connected to 192.0.2.2.
+220 (vsFTPd 3.0.5)
+Name (192.0.2.2:root): ftpuser1
+331 Please specify the password.
+Password: 
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> pwd
+Remote directory: /
+ftp> ls
+229 Entering Extended Passive Mode (|||50091|)
+150 Here comes the directory listing.
+-rw-r--r--    1 30033    30033          35 Nov 11 08:27 readme_server.txt
+226 Directory send OK.
+ftp> put upload_from_client.txt
+local: upload_from_client.txt remote: upload_from_client.txt
+229 Entering Extended Passive Mode (|||50052|)
+150 Ok to send data.
+  0% |                                                                 |     0        0.00 KiB/s    --:-- ETA100% |*****************************************************************|    46        1.15 MiB/s    00:00 ETA
+226 Transfer complete.
+46 bytes sent in 00:00 (79.79 KiB/s)
+ftp> get readme_server.txt
+local: readme_server.txt remote: readme_server.txt
+229 Entering Extended Passive Mode (|||50008|)
+150 Opening BINARY mode data connection for readme_server.txt (35 bytes).
+  0% |                                                                 |     0        0.00 KiB/s    --:-- ETA100% |*****************************************************************|    35      949.43 KiB/s    00:00 ETA
+226 Transfer complete.
+35 bytes received in 00:00 (192.02 KiB/s)
+ftp> ls
+229 Entering Extended Passive Mode (|||50048|)
+150 Here comes the directory listing.
+-rw-r--r--    1 30033    30033          35 Nov 11 08:27 readme_server.txt
+-rw-r--r--    1 30033    30033          46 Nov 11 08:27 upload_from_client.txt
+226 Directory send OK.
+ftp> bye
+221 Goodbye.

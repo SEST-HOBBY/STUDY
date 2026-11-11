@@ -1,0 +1,15 @@
+root@vm:~# jq 'select(.event_type=="alert") | {timestamp, src_ip, src_port, dest_ip, dest_port, proto, alert: {signature_id: .alert.signature_id, signature: .alert.signature, category: .alert.category, severity: .alert.severity}}' logs/eve.json
+{
+  "timestamp": "2026-11-11T08:26:12.968033+0000",
+  "src_ip": "192.0.2.2",
+  "src_port": 8080,
+  "dest_ip": "192.0.2.2",
+  "dest_port": 50056,
+  "proto": "TCP",
+  "alert": {
+    "signature_id": 2100498,
+    "signature": "GPL ATTACK_RESPONSE id check returned root",
+    "category": "Potentially Bad Traffic",
+    "severity": 2
+  }
+}

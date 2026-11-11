@@ -1,0 +1,22 @@
+root@vm:~# postconf -n | grep -E '^(myhostname|mydomain|mydestination|home_mailbox|inet_interfaces)'
+home_mailbox = Maildir/
+inet_interfaces = all
+mydestination = $myhostname, $mydomain, localhost
+mydomain = lab.local
+myhostname = mail.lab.local
+root@vm:~# cat /etc/dovecot/local.conf
+protocols = imap pop3
+listen = *
+mail_location = maildir:~/Maildir
+disable_plaintext_auth = no
+ssl = no
+log_path = /var/log/dovecot.log
+root@vm:~# getent passwd user1 user2 | cut -d: -f1,6
+user1:/home/user1
+user2:/home/user2
+root@vm:~# getent hosts mail.lab.local
+192.0.2.2       mail.lab.local mail
+root@vm:~# ss -tlnp | grep -E ':(25|110|143) '
+LISTEN 0      100          0.0.0.0:110        0.0.0.0:*    users:(("dovecot",pid=6763,fd=22))
+LISTEN 0      100          0.0.0.0:25         0.0.0.0:*    users:(("master",pid=6758,fd=12)) 
+LISTEN 0      100          0.0.0.0:143        0.0.0.0:*    users:(("dovecot",pid=6763,fd=36))

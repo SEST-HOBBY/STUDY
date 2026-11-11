@@ -1,0 +1,6 @@
+root@vm:~# tcpdump -nn -r /tmp/ftpclient/ftp.pcap 2>/dev/null | grep -E 'FTP: (220|USER|331|PASS|230)'
+08:27:59.369006 IP 192.0.2.2.21 > 192.0.2.2.37056: Flags [P.], seq 1:21, ack 1, win 64, options [nop,nop,TS val 3426112150 ecr 3479005222], length 20: FTP: 220 (vsFTPd 3.0.5)
+08:27:59.419911 IP 192.0.2.2.37056 > 192.0.2.2.21: Flags [P.], seq 1:16, ack 21, win 32743, options [nop,nop,TS val 3479005274 ecr 3426112150], length 15: FTP: USER ftpuser1
+08:27:59.420015 IP 192.0.2.2.21 > 192.0.2.2.37056: Flags [P.], seq 21:55, ack 16, win 64, options [nop,nop,TS val 3426112201 ecr 3479005274], length 34: FTP: 331 Please specify the password.
+08:27:59.470948 IP 192.0.2.2.37056 > 192.0.2.2.21: Flags [P.], seq 16:34, ack 55, win 32742, options [nop,nop,TS val 3479005325 ecr 3426112201], length 18: FTP: PASS Lab11-Pass!
+08:27:59.512174 IP 192.0.2.2.21 > 192.0.2.2.37056: Flags [P.], seq 55:78, ack 34, win 64, options [nop,nop,TS val 3426112293 ecr 3479005325], length 23: FTP: 230 Login successful.

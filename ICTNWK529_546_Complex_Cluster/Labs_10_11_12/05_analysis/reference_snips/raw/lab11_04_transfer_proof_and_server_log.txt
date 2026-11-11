@@ -1,0 +1,23 @@
+root@vm:~# ls -l /tmp/ftpclient
+total 16
+-rw-r--r-- 1 tcpdump tcpdump 6929 Nov 11 08:28 ftp.pcap
+-rw-r--r-- 1 root    root      35 Nov 11 08:27 readme_server.txt
+-rw-r--r-- 1 root    root      46 Nov 11 08:27 upload_from_client.txt
+root@vm:~# cat /tmp/ftpclient/readme_server.txt
+Lab 11 test file on the FTP server
+root@vm:~# ls -l /srv/ftp/ftpuser1
+total 8
+-rw-r--r-- 1 ftpuser1 ftpuser1 35 Nov 11 08:27 readme_server.txt
+-rw-r--r-- 1 ftpuser1 ftpuser1 46 Nov 11 08:27 upload_from_client.txt
+root@vm:~# grep -E 'CONNECT|LOGIN|UPLOAD|DOWNLOAD|command: .*(USER|PASS|LIST|STOR|RETR|QUIT)' /var/log/vsftpd.log
+Wed Nov 11 08:27:59 2026 [pid 6998] CONNECT: Client "192.0.2.2"
+Wed Nov 11 08:27:59 2026 [pid 6998] FTP command: Client "192.0.2.2", "USER ftpuser1"
+Wed Nov 11 08:27:59 2026 [pid 6998] [ftpuser1] FTP command: Client "192.0.2.2", "PASS <password>"
+Wed Nov 11 08:27:59 2026 [pid 6997] [ftpuser1] OK LOGIN: Client "192.0.2.2"
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] FTP command: Client "192.0.2.2", "LIST"
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] FTP command: Client "192.0.2.2", "STOR upload_from_client.txt"
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] OK UPLOAD: Client "192.0.2.2", "/upload_from_client.txt", 46 bytes, 15.88Kbyte/sec
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] FTP command: Client "192.0.2.2", "RETR readme_server.txt"
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] OK DOWNLOAD: Client "192.0.2.2", "/readme_server.txt", 35 bytes, 79.86Kbyte/sec
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] FTP command: Client "192.0.2.2", "LIST"
+Wed Nov 11 08:27:59 2026 [pid 6999] [ftpuser1] FTP command: Client "192.0.2.2", "QUIT"
