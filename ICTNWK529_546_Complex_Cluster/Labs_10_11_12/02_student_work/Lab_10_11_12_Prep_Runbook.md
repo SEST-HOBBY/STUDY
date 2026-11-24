@@ -62,7 +62,7 @@ Contents: [Before the labs](#1-before-the-labs) · [Lab 10 Security Onion](#2-la
 
 ## 2. Lab 10 Security Onion
 
-### 2.0 What the template asks for (added 24 Nov 2026, after the lab)
+### 2.0 What the template asks for (added 24 Nov 2026; Lab 10 still to do)
 
 The AT1 template's two demonstration screenshots show that this lab is run on the older Security Onion with the
 **Sguil** console, and that the test is an **nmap scan**: a domain-joined Ubuntu client runs

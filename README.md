@@ -17,6 +17,6 @@ supplied documents, reference material and my own work are kept apart and the pr
 | Folder | Status |
 |---|---|
 | `ICTNWK529_546_Complex_Cluster/AT2_Network_Infrastructure_Proposal` | Report rebuilt in first person; see that folder's README for the file register and what is still missing |
-| `ICTNWK529_546_Complex_Cluster/Labs_10_11_12` | Lab 10 completed and the AT1 written answers and Part 10.1 drafted; its two snips still to go into the results document. Labs 11 and 12 prepared (runbook, written answers, reference snips) and still to do |
+| `ICTNWK529_546_Complex_Cluster/Labs_10_11_12` | Lab 11 completed, screenshots filed and written up. AT1 written answers done; Part 10.1 drafted. Lab 10 and Lab 12 still to do (runbook and reference snips ready) |
 
 Conventions: never edit files in `00_`/`01_`; put derived views in `04_`; keep the decrypt tool and any check scripts in `05_analysis/tools`.

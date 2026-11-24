@@ -148,7 +148,8 @@ over TCP. It is defined in RFC 959. FTP uses two connections. The control connec
 server and carries the login and the commands, such as USER, PASS, LIST, RETR (download) and STOR (upload). A
 separate data connection is opened for each directory listing or file transfer. In active mode the server opens
 the data connection from its port 20 back to the client. In passive mode the client opens it to a high port
-that the server nominates, which is the mode that works through NAT and client firewalls.
+that the server nominates, which is the mode that works through NAT and client firewalls. In my lab the Windows
+command-line client used active mode: each transfer starts with the reply `200 PORT command successful`.
 
 Standard FTP sends the user name, password and file contents in clear text, so anyone capturing the traffic can
 read them. On a production network I would use FTPS (FTP over TLS) or SFTP (file transfer over SSH on port 22).
@@ -202,6 +203,10 @@ polled them to graph interface traffic.
 ---
 
 ## Part 10.1 Troubleshooting report
+
+**AFTER LAB** Lab 10 is not done yet. The report below was drafted on 24 Nov from my answers about a problem
+I have already met (VMs unable to ping). Check it against what happens in Lab 10 and add anything new before
+it goes into the template, then delete this note.
 
 ### Network symptoms
 

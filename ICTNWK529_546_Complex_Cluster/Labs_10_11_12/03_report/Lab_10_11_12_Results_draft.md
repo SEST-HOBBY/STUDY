@@ -1,6 +1,6 @@
 # Lab 10, 11 and 12 Results
 
-Draft prepared before the labs. Lab 10 is now done; Labs 11 and 12 are still to do. The written answers are kept in one place,
+Lab 11 is done and its two screenshots are in. Labs 10 and 12 are still to do. The written answers are kept in one place,
 `AT1_Written_Answers.md`, and this file tracks the screenshots. Every line that starts
 with **AFTER LAB** is a slot that can only be filled from what happens on the day (my screenshots and my
 troubleshooting notes). Search for "AFTER LAB" before submitting; none should be left.
@@ -9,7 +9,7 @@ troubleshooting notes). Search for "AFTER LAB" before submitting; none should be
 
 ## Lab 10 Results
 
-Lab completed on or before 24 Nov 2026. The two snips match the two demonstration screenshots in the template
+Not done yet. The two snips have to match the two demonstration screenshots in the template
 (copies in `04_extracted_views/Lab10_template_demonstration_screenshots/`).
 
 **AFTER LAB** Screenshot 10-A: a terminal on my domain-joined Ubuntu client running the `nmap` scan
@@ -27,16 +27,32 @@ In `AT1_Written_Answers.md`, last section.
 
 ## Lab 11 Results
 
-**AFTER LAB** Screenshot 11-A: FTP server installed and running (service status or the server's admin window).
+Completed. The FTP server is the Microsoft FTP Service (IIS) on a Windows server at 172.16.0.50, sharing the
+folder `C:\FTP-Lab11`. The client is DC2, using the Windows command-line `ftp` client and the FTP user
+`ftp_lab11`. The directory listing shows the upload at 7:20 pm on 19 Nov 2026.
 
-**AFTER LAB** Screenshot 11-B: the FTP user and the shared folder configured on the server.
+**Screenshot 11-1, the client session** (`02_student_work/screenshots/lab11_02_dc2_client_login_upload_dir.png`)
 
-**AFTER LAB** Screenshot 11-C: a client logged in and listing the folder (the 230 login reply and the directory listing).
+![FTP client session from DC2](../02_student_work/screenshots/lab11_02_dc2_client_login_upload_dir.png)
 
-**AFTER LAB** Screenshot 11-D: a file uploaded and a file downloaded, with the server log showing the transfer.
+From DC2 I connected to 172.16.0.50 and the server answered `220 Microsoft FTP Service`, which shows the FTP
+service is running and reachable. The first two logins were refused (`530 User cannot log in`); the third was
+accepted (`230 User logged in`). I set binary mode, uploaded `DC2-to-FTP.txt` with `put`
+(`226 Transfer complete`, 35 bytes sent) and listed the folder with `dir`, which shows the uploaded file on
+the server.
 
-(Reference examples of each: `05_analysis/reference_snips/lab11_ref1` to `lab11_ref5`. They are examples only;
-the snips that go here are my own.)
+**Screenshot 11-2, the server side** (`02_student_work/screenshots/lab11_01_ftp_server_ip_and_uploaded_file.png`)
+
+![FTP server address and the uploaded file](../02_student_work/screenshots/lab11_01_ftp_server_ip_and_uploaded_file.png)
+
+On the FTP server, `New-NetIPAddress` sets the address 172.16.0.50/24 on Ethernet0, and
+`Get-Content C:\FTP-Lab11\DC2-to-FTP.txt` reads the file that arrived from DC2: "Lab 11 successful upload
+from DC2". The file is the same 35 bytes the client reported sending.
+
+Optional extra, if the teacher wants to see the configuration as well as the service working: the FTP site in
+IIS Manager (binding on port 21, physical path `C:\FTP-Lab11`, the authorisation rule for `ftp_lab11`).
+
+(Reference examples from a Linux test server: `05_analysis/reference_snips/lab11_ref1` to `lab11_ref5`.)
 
 ### What is the FTP protocol?
 
