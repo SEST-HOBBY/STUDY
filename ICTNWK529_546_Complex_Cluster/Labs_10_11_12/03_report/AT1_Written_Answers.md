@@ -23,22 +23,26 @@ its web traffic went through the proxy server.
 ## 2 and 3. Briefly describe the following: what are the steps to configure the firewall in Lab 3?
 
 The Lab 3 firewall is a Cisco IOS zone-based policy firewall (ZPF) on the SB and MG routers. Interfaces are
-placed into security zones, and traffic between two zones is blocked unless a policy allows it. The steps are:
+placed into security zones, and traffic between two zones is blocked unless a policy allows it. The steps,
+with the names used on my routers, are:
 
 1. **Create the security zones**, one for the trusted LAN and one for the untrusted side:
-   `zone security INSIDE` and `zone security OUTSIDE`.
-2. **Identify the traffic with a class map**: `class-map type inspect match-any <name>` followed by
-   `match protocol tcp`, `match protocol udp`, `match protocol icmp`, or a match on an access list.
-3. **Set the action in a policy map**: `policy-map type inspect <name>`, then `class type inspect <class>` and
-   the action `inspect` (allow and track the session so that replies are let back in), `pass` or `drop`.
-4. **Create a zone pair and attach the policy**: `zone-pair security <name> source INSIDE destination OUTSIDE`,
-   then `service-policy type inspect <policy>`. A zone pair works in one direction only, so traffic that starts
-   from the outside stays blocked unless a second pair is made for it.
-5. **Assign the interfaces to the zones**: on each interface, `zone-member security INSIDE` or
-   `zone-member security OUTSIDE`.
-6. **Verify**: `show zone security` (zones and their member interfaces), `show zone-pair security`, and
-   `show policy-map type inspect zone-pair` (class maps, actions and match counters). Then test: a ping or web
-   session from inside to outside succeeds, and one started from outside to inside fails.
+   `zone security Inside` and `zone security Internet`.
+2. **Identify the traffic with a class map**: `class-map type inspect match-any cmap-inside`, followed by
+   `match protocol tcp`, `match protocol udp` and `match protocol icmp`.
+3. **Set the action in a policy map**: `policy-map type inspect Inside-to-Internet`, then
+   `class type inspect cmap-inside` and the action `inspect`, which allows the traffic and tracks each session
+   so that the replies are let back in. Everything else falls into `class-default` and is dropped.
+4. **Create a zone pair and attach the policy**:
+   `zone-pair security Inside-to-Internet source Inside destination Internet`, then
+   `service-policy type inspect Inside-to-Internet`. A zone pair works in one direction only, so traffic that
+   starts from the Internet side stays blocked.
+5. **Assign the interfaces to the zones**: `zone-member security Inside` on the LAN interface
+   (GigabitEthernet0/1 on MG) and `zone-member security Internet` on the WAN interface (Serial0/0/1 on MG).
+6. **Verify**: `show zone security` lists the zones and their member interfaces, and
+   `show policy-map type inspect zone-pair` shows the zone pair, its policy, the class map and the match
+   counters going up. Then test: a ping or web session from inside to outside succeeds, and one started from
+   outside to inside fails.
 
 ## 4. What are firewall applications (functions of firewalls)?
 
