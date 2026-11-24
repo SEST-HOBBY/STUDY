@@ -36,7 +36,7 @@ folder `C:\FTP-Lab11`. The client is DC2, using the Windows command-line `ftp` c
 ![FTP client session from DC2](../02_student_work/screenshots/lab11_02_dc2_client_login_upload_dir.png)
 
 From DC2 I connected to 172.16.0.50 and the server answered `220 Microsoft FTP Service`, which shows the FTP
-service is running and reachable. The first two logins were refused (`530 User cannot log in`); the third was
+service is running and reachable. The first two logins were refused (`530 User cannot log in`) because I typed the wrong password; the third was
 accepted (`230 User logged in`). I set binary mode, uploaded `DC2-to-FTP.txt` with `put`
 (`226 Transfer complete`, 35 bytes sent) and listed the folder with `dir`, which shows the uploaded file on
 the server.

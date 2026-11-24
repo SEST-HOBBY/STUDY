@@ -204,19 +204,27 @@ polled them to graph interface traffic.
 
 ## Part 10.1 Troubleshooting report
 
-**AFTER LAB** Lab 10 is not done yet. The report below was drafted on 24 Nov from my answers about a problem
-I have already met (VMs unable to ping). Check it against what happens in Lab 10 and add anything new before
-it goes into the template, then delete this note.
+**AFTER LAB** Lab 10 is not done yet. Problem 1 was drafted on 24 Nov from my answers about a fault I have
+already met; problem 2 is from my Lab 11 screenshot. Check both against what happens in Lab 10 and add anything
+new before this goes into the template, then delete this note.
 
 ### Network symptoms
 
-The virtual machines could not ping each other. A ping from one VM to another VM, and to the default gateway
-on the router, got no replies, and the fault was constant, not intermittent. Until it was fixed the lab could
-not continue, because the machines have to reach each other before any traffic can be generated and monitored.
+**Problem 1: the virtual machines could not ping each other.** A ping from one VM to another VM, and to the
+default gateway on the router, got no replies, and the fault was constant, not intermittent. Until it was fixed
+the lab could not continue, because the machines have to reach each other before any traffic can be generated
+and monitored.
+
+**Problem 2: the FTP server refused my login (Lab 11).** From DC2 I ran `ftp 172.16.0.50`. The connection
+opened and the server answered `220 Microsoft FTP Service`, but after I entered the user name `ftp_lab11` and
+the password the server replied `530 User cannot log in` and the client reported `Login failed`. The same
+thing happened on the second attempt.
 
 ### Troubleshooting tools and techniques
 
 I used a divide-and-conquer approach: prove which parts of the path work, then look at what is left.
+
+**Problem 1.**
 
 * **ping** established the scope of the problem. The VM could not reach its own gateway, so the fault was close
   to the VM and was not a routing problem further along the path.
@@ -229,10 +237,27 @@ the VM's virtual network adapter in VMware, and its setting was the fault: the a
 wrong type of virtual network (host-only), which keeps the VM on a private network inside the host PC with no
 connection to the physical switch.
 
+**Problem 2.** The diagnostic tool was the command-line **ftp client** itself, read through the FTP reply
+codes, which show how far the session got:
+
+* `Connected to 172.16.0.50` and `220 Microsoft FTP Service` proved that the network path, TCP port 21, the
+  server firewall and the FTP service were all working, so this was not a network fault.
+* `331 Password required` showed that the server had accepted the user name step and was asking for the
+  password.
+* `530 User cannot log in` is the reply for a failed authentication.
+
+That isolated the fault to the credentials, and the cause was that I had typed the wrong password.
+
 ### Resolution
 
-I changed the VM's network adapter in the VMware settings to Bridged, so that the VM connects directly to the
-physical network through the PC's network card that is cabled to the switch, and made sure the adapter was
-connected. I then repeated the test that had failed: the VM could ping its gateway and the other VMs, and the
-lab continued from there. The lesson is to check the adapter type of a new VM first, before looking for a
-fault on the routers and switches.
+**Problem 1.** I changed the VM's network adapter in the VMware settings to Bridged, so that the VM connects
+directly to the physical network through the PC's network card that is cabled to the switch, and made sure the
+adapter was connected. I then repeated the test that had failed: the VM could ping its gateway and the other
+VMs, and the lab continued from there. The lesson is to check the adapter type of a new VM first, before
+looking for a fault on the routers and switches.
+
+**Problem 2.** I closed the session with `bye`, connected again and entered the correct password for
+`ftp_lab11`. The server replied `230 User logged in`. I then uploaded `DC2-to-FTP.txt` with `put`
+(`226 Transfer complete`) and confirmed with `dir` that the file was on the server. The lesson is to read the
+reply code before changing anything: a `220` banner followed by `530` means the network and the service are
+fine and only the user name or password needs correcting.
