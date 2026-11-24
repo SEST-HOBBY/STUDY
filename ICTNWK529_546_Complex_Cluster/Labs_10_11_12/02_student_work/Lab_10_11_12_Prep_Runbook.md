@@ -62,6 +62,20 @@ Contents: [Before the labs](#1-before-the-labs) · [Lab 10 Security Onion](#2-la
 
 ## 2. Lab 10 Security Onion
 
+### 2.0 What the template asks for (added 24 Nov 2026, after the lab)
+
+The AT1 template's two demonstration screenshots show that this lab is run on the older Security Onion with the
+**Sguil** console, and that the test is an **nmap scan**: a domain-joined Ubuntu client runs
+`sudo nmap -O <target>`, and Sguil lists the resulting `GPL ICMP_INFO PING` and `ET SCAN ...` alerts with the
+Agent Status panel showing the ossec, pcap and snort agents UP. Copies of both screenshots are in
+`04_extracted_views/Lab10_template_demonstration_screenshots/`.
+
+Sections 2.1 to 2.4 below were written before the lab around Security Onion 2.4 and its web console. The two
+adapters, the address checks and the "no alerts" diagnosis apply to both generations. On the Sguil generation
+the status and access commands are `sudo so-status` (or `sudo sostat` for the full report), `sudo so-allow` to
+let another machine in, and `sudo so-restart` to restart the sensor services, and the alerts are read in Sguil
+after ticking the monitored interface at login.
+
 ### 2.1 What it is
 
 Security Onion is a free Linux distribution for network security monitoring, threat hunting and log
