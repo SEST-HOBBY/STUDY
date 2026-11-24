@@ -203,5 +203,31 @@ polled them to graph interface traffic.
 
 ## Part 10.1 Troubleshooting report
 
-**AFTER LAB** This section has to describe the problems I met in my own labs, so it is written from my answers
-about what happened: the symptoms, the tools and techniques used to find the cause, and the fix.
+### Network symptoms
+
+The virtual machines could not ping each other. A ping from one VM to another VM, and to the default gateway
+on the router, got no replies, and the fault was constant, not intermittent. Until it was fixed the lab could
+not continue, because the machines have to reach each other before any traffic can be generated and monitored.
+
+### Troubleshooting tools and techniques
+
+I used a divide-and-conquer approach: prove which parts of the path work, then look at what is left.
+
+* **ping** established the scope of the problem. The VM could not reach its own gateway, so the fault was close
+  to the VM and was not a routing problem further along the path.
+* **Cisco show commands** on the router and switch ruled out the network devices. `show ip interface brief`
+  showed the interfaces up/up with the correct addresses, `show ip route` showed the expected networks in the
+  routing table, and `show running-config` confirmed the interface configuration was as intended.
+
+With the Cisco devices shown to be working, the cause had to be between the VM and the switch. That pointed to
+the VM's virtual network adapter in VMware, and its setting was the fault: the adapter was attached to the
+wrong type of virtual network (host-only), which keeps the VM on a private network inside the host PC with no
+connection to the physical switch.
+
+### Resolution
+
+I changed the VM's network adapter in the VMware settings to Bridged, so that the VM connects directly to the
+physical network through the PC's network card that is cabled to the switch, and made sure the adapter was
+connected. I then repeated the test that had failed: the VM could ping its gateway and the other VMs, and the
+lab continued from there. The lesson is to check the adapter type of a new VM first, before looking for a
+fault on the routers and switches.
