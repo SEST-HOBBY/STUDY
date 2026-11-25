@@ -208,60 +208,67 @@ polled them to graph interface traffic.
 
 ## Part 10.1 Troubleshooting report
 
-**AFTER LAB** Lab 10 is not done yet. Problem 1 was drafted on 24 Nov from my answers about a fault I have
-already met; problem 2 is from my Lab 11 screenshot. Check both against what happens in Lab 10 and add anything
-new before this goes into the template, then delete this note.
+These are the three network problems I met while doing Lab 10 on 25 Nov 2026. The lab used two virtual machines
+on one host: Security Onion 16.04.6.2 (10.10.10.10) and an Ubuntu 18.04.5 client (10.10.10.20) that scans it
+with nmap.
 
 ### Network symptoms
 
-**Problem 1: the virtual machines could not ping each other.** A ping from one VM to another VM, and to the
-default gateway on the router, got no replies, and the fault was constant, not intermittent. Until it was fixed
-the lab could not continue, because the machines have to reach each other before any traffic can be generated
-and monitored.
+**Problem 1: Security Onion could not be given a sniffing interface.** When I ran Setup, it reported "You only
+have one interface (ens33), which will be configured as a management interface". With one interface there was
+nothing separate to monitor traffic on.
 
-**Problem 2: the FTP server refused my login (Lab 11).** From DC2 I ran `ftp 172.16.0.50`. The connection
-opened and the server answered `220 Microsoft FTP Service`, but after I entered the user name `ftp_lab11` and
-the password the server replied `530 User cannot log in` and the client reported `Login failed`. The same
-thing happened on the second attempt.
+**Problem 2: the Ubuntu client could not reach Security Onion.** My first ping to 10.10.10.10 appeared to work,
+but the replies came back in about 0.05 ms, which is too fast for another machine. After I corrected the
+client's address, the ping failed with "connect: Network is unreachable".
+
+**Problem 3: nmap could not be installed on the Ubuntu client.** Running `nmap --version` returned "Command
+'nmap' not found", and the client had no internet connection to install it from.
 
 ### Troubleshooting tools and techniques
 
-I used a divide-and-conquer approach: prove which parts of the path work, then look at what is left.
+I worked from the bottom up in each case: the adapter and link first, then the IP address, then the route out.
 
-**Problem 1.**
+**Problem 1.** The Setup message itself named the fault, so I checked the layer below it, the virtual hardware.
+The VMware settings for the VM listed only one Network Adapter. The second adapter had not been added when the
+VM was created.
 
-* **ping** established the scope of the problem. The VM could not reach its own gateway, so the fault was close
-  to the VM and was not a routing problem further along the path.
-* **Cisco show commands** on the router and switch ruled out the network devices. `show ip interface brief`
-  showed the interfaces up/up with the correct addresses, `show ip route` showed the expected networks in the
-  routing table, and `show running-config` confirmed the interface configuration was as intended.
+**Problem 2.**
 
-With the Cisco devices shown to be working, the cause had to be between the VM and the switch. That pointed to
-the VM's virtual network adapter in VMware, and its setting was the fault: the adapter was attached to the
-wrong type of virtual network (host-only), which keeps the VM on a private network inside the host PC with no
-connection to the physical switch.
+* **ping** showed the symptom, and the reply time was the clue to the first cause. I had typed 10.10.10.10 as
+  the client's own address, the same address as Security Onion, so the client was answering its own pings.
+* After deleting that address and adding 10.10.10.20/24, the "Network is unreachable" error pointed to the
+  interface or the route, not to the other machine.
+* **`ip -br addr`** showed the cause: `ens33` was listed as DOWN, with the address on it. An address on an
+  interface that is down gives no usable route.
 
-**Problem 2.** The diagnostic tool was the command-line **ftp client** itself, read through the FTP reply
-codes, which show how far the session got:
+**Problem 3.**
 
-* `Connected to 172.16.0.50` and `220 Microsoft FTP Service` proved that the network path, TCP port 21, the
-  server firewall and the FTP service were all working, so this was not a network fault.
-* `331 Password required` showed that the server had accepted the user name step and was asking for the
-  password.
-* `530 User cannot log in` is the reply for a failed authentication.
-
-That isolated the fault to the credentials, and the cause was that I had typed the wrong password.
+* I switched the client's adapter to NAT and ran **`sudo dhclient -v ens33`** to request an address. The verbose
+  output showed only repeated DHCPDISCOVER lines and no offer, so the NAT network on this PC was not handing out
+  addresses.
+* **`ping 8.8.8.8`** from another VM on the host-only network timed out with "Destination host unreachable",
+  which ruled out the host-only network as a way to the internet.
+* The **VMware adapter settings** for the client showed both of its adapters were on host-only networks
+  (Host-only and VMnet1), which explained why it had no internet at all.
 
 ### Resolution
 
-**Problem 1.** I changed the VM's network adapter in the VMware settings to Bridged, so that the VM connects
-directly to the physical network through the PC's network card that is cabled to the switch, and made sure the
-adapter was connected. I then repeated the test that had failed: the VM could ping its gateway and the other
-VMs, and the lab continued from there. The lesson is to check the adapter type of a new VM first, before
-looking for a fault on the routers and switches.
+**Problem 1.** I powered the VM off, added a second Network Adapter set to Host-only, and ran Setup again. It
+then offered `ens33` and `ens37`. I used `ens33` for management and `ens37` for sniffing. `sudo so-status`
+afterwards showed every service OK, with the sensor listed as `lab10-virtual-machine-ens37`.
 
-**Problem 2.** I closed the session with `bye`, connected again and entered the correct password for
-`ftp_lab11`. The server replied `230 User logged in`. I then uploaded `DC2-to-FTP.txt` with `put`
-(`226 Transfer complete`) and confirmed with `dir` that the file was on the server. The lesson is to read the
-reply code before changing anything: a `220` banner followed by `530` means the network and the service are
-fine and only the user name or password needs correcting.
+**Problem 2.** I removed the duplicate address (`sudo ip addr del 10.10.10.10/24 dev ens33`), added the correct
+one (`sudo ip addr add 10.10.10.20/24 dev ens33`) and brought the interface up (`sudo ip link set ens33 up`).
+The ping to 10.10.10.10 then got three replies at about 0.5 to 0.8 ms, which is what a reply from another
+machine looks like.
+
+**Problem 3.** I changed the client's adapter to Bridged so that it joined the lab's physical network. This
+time `dhclient -v` showed a DHCPOFFER and DHCPACK from 192.168.203.254 and the client was bound to
+192.168.203.51. I installed nmap with `sudo apt install nmap` (version 7.60). I then set the adapter back to
+Host-only, released the lease with `sudo dhclient -r ens33`, brought the interface up, re-added
+10.10.10.20/24 and confirmed the ping to Security Onion. The scan `sudo nmap -O 10.10.10.10` then ran, and
+Sguil showed the alerts from 10.10.10.20.
+
+What I took from this: check the virtual adapter before anything inside the guest, read the reply time as well
+as the reply, and use the verbose output of a tool to see which step fails.
