@@ -19,6 +19,14 @@ Lab 12 are still to do.
 | `reference_snips/*.png` and `raw/*.txt` | 05_analysis | Real runs on a Linux test machine, 11 Nov 2026 | 13 reference examples (3 for Lab 10, 5 each for Labs 11 and 12). Not lab evidence; see that folder's README |
 | `tools/` | 05_analysis | Scripts behind the reference runs | `ftp_reference_*`, `mail_reference_*`, `ids_reference_capture.sh` produce `raw/`; `render_snips.js` draws the images |
 
+## Lab environment facts
+
+* **Networking_VM_2024** (user `Student`, 192.168.220.18/28 on the host-only adapter `Labs_NIC`): PowerShell cannot
+  be run as administrator on this VM. Commands that need elevation, such as `New-NetFirewallRule`, fail with
+  "Access is denied". Do not give steps for this VM that need an elevated prompt.
+* hMailServer 5.7.2 (x64) is installed on Networking_VM_2024 with the domain `lab12.local` and the accounts
+  `user1` and `user2`.
+
 ## What is still needed
 
 1. Lab 10 itself, then my own two Lab 10 snips (nmap scan on the Ubuntu client, Sguil alert list), marked off by
