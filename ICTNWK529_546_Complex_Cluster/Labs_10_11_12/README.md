@@ -27,12 +27,6 @@ Lab 12 are still to do.
 * hMailServer 5.7.2 (x64) is installed on Networking_VM_2024 with the domain `lab12.local` and the accounts
   `user1` and `user2`.
 
-* **Lab 10 (done 25 Nov 2026)**: Security Onion 16.04.6.2 VM `SecurityOnion` (hostname `lab10-virtual-machine`),
-  management `ens33` 10.10.10.10/24, sniffing `ens37`, both adapters Host-only, Evaluation Mode. The Ubuntu
-  18.04.5 VM (user `student`) scans it from a temporary address 10.10.10.20/24 on `ens33`. nmap was installed by
-  switching the Ubuntu adapter to Bridged for internet (NAT gives no DHCP on this PC), then back to Host-only.
-  Screenshots: `02_student_work/screenshots/lab10_*.png`.
-
 ## What is still needed
 
 1. Lab 10 itself, then my own two Lab 10 snips (nmap scan on the Ubuntu client, Sguil alert list), marked off by
