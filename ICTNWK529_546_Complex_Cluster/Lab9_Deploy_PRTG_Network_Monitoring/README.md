@@ -26,8 +26,6 @@ SB-FS2 .3, SB-S1 SVI .254); MG LAN 172.16.0.0/24 (MG .1, DC2 .2 = remote probe, 
 Consequence: the three-router topology (SB - ISP - MG with the serial links and the GRE/IPsec tunnel) is
 required; the single-router shortcut of 2026-10-29 does not meet the starting requirement.
 
-Evidence item 12 (SNMP, screenshot, from your own PRTG): `05_analysis/Item12_SNMP_own_PRTG_walkthrough_2026-11-26.md`.
-
 ## Rollover from the earlier labs
 
 Lab 9 is expected to build on what Labs 1 to 8 left behind. What that is, as recorded in this repo:
